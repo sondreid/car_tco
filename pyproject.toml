@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "car_reliability"
+version = "0.1.0"
+description = "Modular TCO and reliability analysis for used cars (Norwegian market)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov",
+]
+
+[project.scripts]
+car-reliability = "car_reliability.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["car_reliability*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"

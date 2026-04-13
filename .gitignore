@@ -1,0 +1,6 @@
+.claude
+output
+*venv*
+*pycache*
+*egg*
+.DS_Store
