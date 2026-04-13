@@ -17,9 +17,16 @@ that will be analysed.  Each entry has the shape expected by the pipeline:
 Adding a new car only requires appending an entry here (or passing overrides
 at runtime via ``extra_cars``).  Prices can be patched at runtime via
 ``price_overrides`` so CLI/notebooks don't have to touch this file.
+
+This module supports two ways of creating a car instance:
+1. ``build_car("Model Name")`` → copy the repo's default reference instance
+2. ``build_car("Model Name", price_nok=..., year=..., km=...)`` → copy the
+   default reference instance and override the specific fields
 """
 
 from __future__ import annotations
+
+import copy
 
 
 _DEFAULT_FLEET: list[dict] = [
@@ -27,10 +34,12 @@ _DEFAULT_FLEET: list[dict] = [
         "model": "Toyota Avensis",
         "name": "Toyota Avensis existing car",
         "description": "existing car, assumed 2012 petrol, known repairs required",
+        "existing_car": True,
         "price_nok": 0,
+        "current_resale_value_nok": 20_000,
         "year": 2012,
         "km": 182_000,
-        "known_repairs_nok": 50_000,
+        "known_repairs_nok": 60_000,
         "exclude_from_price_estimation": True,
         "url": "",
     },
@@ -117,6 +126,38 @@ _DEFAULT_FLEET: list[dict] = [
     },
 ]
 
+_DEFAULT_BY_MODEL: dict[str, dict] = {car["model"]: car for car in _DEFAULT_FLEET}
+
+
+def build_car(model: str, **overrides) -> dict:
+    """
+    Build one car instance from a known model.
+
+    Two modes are supported:
+    - model only: copy the repo's default reference instance for that model
+    - model + overrides: copy the default instance, then patch fields such as
+      ``price_nok``, ``year``, ``km``, ``known_repairs_nok``,
+      ``current_resale_value_nok`` or ``url``
+
+    If the model has no default reference instance, the caller must supply at
+    least ``price_nok``, ``year`` and ``km`` in overrides.
+    """
+    if model in _DEFAULT_BY_MODEL:
+        car = copy.deepcopy(_DEFAULT_BY_MODEL[model])
+    else:
+        required = {"price_nok", "year", "km"}
+        missing = sorted(required.difference(overrides))
+        if missing:
+            missing_str = ", ".join(missing)
+            raise KeyError(
+                f"Unknown reference model {model!r}; overrides must include {missing_str}"
+            )
+        car = {"model": model}
+
+    car.update(overrides)
+    car["model"] = model
+    return car
+
 
 def build_reference_fleet(
     price_overrides: dict[str, float] | None = None,
@@ -134,8 +175,6 @@ def build_reference_fleet(
         Additional car dicts appended after the default fleet.  Must contain
         at least ``model``, ``price_nok``, ``year``, ``km``.
     """
-    import copy
-
     fleet = copy.deepcopy(_DEFAULT_FLEET)
 
     if price_overrides:

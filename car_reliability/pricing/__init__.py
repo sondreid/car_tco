@@ -5,6 +5,8 @@ from .finn import (
     FinnPriceEstimate,
     PriceEstimatorConfig,
     estimate_fleet_prices,
+    load_price_cache,
+    save_price_cache,
 )
 
 __all__ = [
@@ -12,4 +14,6 @@ __all__ = [
     "FinnPriceEstimate",
     "PriceEstimatorConfig",
     "estimate_fleet_prices",
+    "load_price_cache",
+    "save_price_cache",
 ]

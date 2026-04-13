@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import html
 import json
+from pathlib import Path
 import re
 import unicodedata
 from urllib.parse import urlencode
@@ -33,7 +34,8 @@ class PriceEstimatorConfig:
     year_tolerance: int = 1
     km_tolerance: int = 20_000
     min_matches: int = 2
-    max_results: int = 30
+    comparable_subset_size: int = 6
+    max_results: int = 50
     request_timeout_seconds: float = 15.0
     fallback_to_reference_price: bool = True
 
@@ -62,8 +64,10 @@ class FinnPriceEstimate:
     estimated_price_nok: int | None
     price_source: str
     match_count: int
+    comparable_count: int
     used_fallback: bool
     notes: str = ""
+    scraped_at: str = ""
 
 
 @dataclass(frozen=True)
@@ -168,13 +172,18 @@ class FinnPriceEstimator:
             note = f"matched {len(matches)} listings"
             return self._fallback(reference_price, note, match_count=len(matches))
 
-        mean_price = round(sum(item.price_nok for item in matches) / len(matches))
+        comparable_subset = select_nearest_comparables(matches, car, self.config)
+        typical_price = median_price(comparable_subset)
         return FinnPriceEstimate(
-            estimated_price_nok=mean_price,
-            price_source="finn_mean",
+            estimated_price_nok=typical_price,
+            price_source="finn_typical",
             match_count=len(matches),
+            comparable_count=len(comparable_subset),
             used_fallback=False,
-            notes=f"mean of {len(matches)} FINN listings",
+            notes=(
+                f"median of nearest {len(comparable_subset)} comparable listings "
+                f"from {len(matches)} accepted matches"
+            ),
         )
 
     def _build_search_url(self, query: str) -> str:
@@ -191,6 +200,7 @@ class FinnPriceEstimator:
             estimated_price_nok=estimate,
             price_source="manual",
             match_count=match_count,
+            comparable_count=0,
             used_fallback=True,
             notes=note,
         )
@@ -215,28 +225,114 @@ def estimate_fleet_prices(
     fleet: list[dict],
     config: PriceEstimatorConfig | None = None,
     estimator: FinnPriceEstimator | None = None,
+    cache_mode: bool = False,
+    cache_file: str | Path | None = None,
 ) -> list[dict]:
     """Return a fleet with estimated prices and price metadata."""
 
     import copy
 
     resolved = copy.deepcopy(fleet)
+    cache_path = Path(cache_file) if cache_file is not None else Path("reports/finn_price_cache.json")
+    cache = load_price_cache(cache_path) if cache_mode else {}
     service = estimator or FinnPriceEstimator(config=config)
+    cache_updates: dict[str, dict] = {}
     for car in resolved:
         if car.get("exclude_from_price_estimation"):
             car["price_source"] = car.get("price_source", "existing_car")
             car["price_match_count"] = 0
+            car["price_comparable_count"] = 0
             car["price_fallback_used"] = False
             car["price_note"] = car.get("price_note", "excluded from price estimation")
             continue
-        estimate = service.estimate_price(car)
+        if cache_mode:
+            try:
+                estimate = estimate_price_from_cache(car, cache)
+            except KeyError as exc:
+                raise KeyError(
+                    f"{exc.args[0]} in {cache_path}. Run with --scrape-prices to populate the cache."
+                ) from exc
+        else:
+            estimate = service.estimate_price(car)
+            if estimate.price_source == "finn_typical":
+                cache_updates[car["model"]] = build_cache_entry(car, estimate)
         if estimate.estimated_price_nok is not None:
             car["price_nok"] = float(estimate.estimated_price_nok)
         car["price_source"] = estimate.price_source
         car["price_match_count"] = estimate.match_count
+        car["price_comparable_count"] = estimate.comparable_count
         car["price_fallback_used"] = estimate.used_fallback
         car["price_note"] = estimate.notes
+    if not cache_mode and cache_updates:
+        save_price_cache(cache_path, cache_updates)
     return resolved
+
+
+def load_price_cache(path: Path) -> dict[str, dict]:
+    """Load cached scraped prices."""
+
+    if not path.exists():
+        raise FileNotFoundError(f"price cache not found: {path}")
+    payload = json.loads(path.read_text())
+    entries = payload.get("entries")
+    if not isinstance(entries, dict):
+        raise ValueError("price cache missing entries object")
+    return entries
+
+
+def save_price_cache(path: Path, entries: dict[str, dict]) -> None:
+    """Write scraped price cache."""
+
+    existing: dict[str, dict] = {}
+    if path.exists():
+        try:
+            existing = load_price_cache(path)
+        except Exception:
+            existing = {}
+    merged = dict(existing)
+    merged.update(entries)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({"entries": merged}, indent=2, sort_keys=True)
+    )
+
+
+def build_cache_entry(car: dict, estimate: FinnPriceEstimate) -> dict:
+    """Build one cache entry."""
+
+    from datetime import datetime, UTC
+
+    return {
+        "model": car["model"],
+        "estimated_price_nok": estimate.estimated_price_nok,
+        "price_source": estimate.price_source,
+        "match_count": estimate.match_count,
+        "comparable_count": estimate.comparable_count,
+        "price_note": estimate.notes,
+        "reference_year": int(car["year"]),
+        "reference_km": int(float(car["km"])),
+        "scraped_at": datetime.now(UTC).isoformat(),
+    }
+
+
+def estimate_price_from_cache(car: dict, cache: dict[str, dict]) -> FinnPriceEstimate:
+    """Estimate price from cache only."""
+
+    model = car["model"]
+    if model not in cache:
+        raise KeyError(f"missing cached scraped price for {model}")
+    entry = cache[model]
+    if entry.get("reference_year") != int(car["year"]) or entry.get("reference_km") != int(float(car["km"])):
+        raise ValueError(f"cached scraped price for {model} does not match reference year/km")
+    return FinnPriceEstimate(
+        estimated_price_nok=int(entry["estimated_price_nok"]),
+        price_source="finn_cached",
+        match_count=int(entry.get("match_count", 0)),
+        comparable_count=int(entry.get("comparable_count", 0)),
+        used_fallback=False,
+        notes=entry.get("price_note", ""),
+        scraped_at=entry.get("scraped_at", ""),
+    )
 
 
 def parse_search_results(html_text: str, max_results: int) -> list[FinnListing]:
@@ -314,6 +410,36 @@ def is_listing_match(
     if any(token in text for token in profile.excluded_tokens):
         return False
     return all(any(token in text for token in group) for group in profile.required_groups)
+
+
+def select_nearest_comparables(
+    matches: list[FinnListing],
+    car: dict,
+    config: PriceEstimatorConfig,
+) -> list[FinnListing]:
+    """Return the nearest comparable listings within the accepted match set."""
+
+    target_year = int(car["year"])
+    target_km = int(float(car["km"]))
+
+    def distance(listing: FinnListing) -> tuple[float, int, int, int]:
+        year_delta = abs((listing.year or target_year) - target_year)
+        km_delta = abs((listing.km or target_km) - target_km)
+        normalized_km = km_delta / max(config.km_tolerance, 1)
+        return (year_delta + normalized_km, year_delta, km_delta, listing.price_nok)
+
+    ranked = sorted(matches, key=distance)
+    return ranked[: min(config.comparable_subset_size, len(ranked))]
+
+
+def median_price(listings: list[FinnListing]) -> int:
+    """Return median price from listing set."""
+
+    prices = sorted(item.price_nok for item in listings)
+    mid = len(prices) // 2
+    if len(prices) % 2:
+        return prices[mid]
+    return round((prices[mid - 1] + prices[mid]) / 2)
 
 
 def build_generic_profile(model: str) -> _ModelProfile:

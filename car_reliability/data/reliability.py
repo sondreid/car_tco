@@ -18,21 +18,23 @@ class ReliabilitySource:
 class ReliabilityProfile:
     """Reliability inputs for one model."""
 
-    published_reliability: float
-    owner_reliability: float
-    complexity: int
+    survey_score: float
+    owner_score: float
+    complexity_risk: int
     failure_cost_risk: int
-    evidence_uncertainty: int
+    evidence_confidence: float
+    known_failure_modes: tuple[str, ...]
     sources: tuple[ReliabilitySource, ...]
 
 
 RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
     "Mercedes EQC": ReliabilityProfile(
-        published_reliability=83.0,
-        owner_reliability=81.0,
-        complexity=14,
+        survey_score=83.0,
+        owner_score=81.0,
+        complexity_risk=14,
         failure_cost_risk=10,
-        evidence_uncertainty=8,
+        evidence_confidence=66.0,
+        known_failure_modes=("high-voltage systems", "air suspension/electronics", "premium EV ancillaries"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -42,11 +44,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Mazda CX-5 diesel AWD": ReliabilityProfile(
-        published_reliability=88.5,
-        owner_reliability=84.0,
-        complexity=9,
+        survey_score=88.5,
+        owner_score=84.0,
+        complexity_risk=9,
         failure_cost_risk=7,
-        evidence_uncertainty=3,
+        evidence_confidence=79.0,
+        known_failure_modes=("DPF", "injectors", "exhaust/emissions ancillaries"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -56,11 +59,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Peugeot 508 SW 2.0 BlueHDi": ReliabilityProfile(
-        published_reliability=79.0,
-        owner_reliability=76.0,
-        complexity=9,
+        survey_score=79.0,
+        owner_score=76.0,
+        complexity_risk=9,
         failure_cost_risk=8,
-        evidence_uncertainty=8,
+        evidence_confidence=60.0,
+        known_failure_modes=("electrics", "diesel emissions hardware", "older French estate ancillaries"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -70,11 +74,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Skoda Kodiaq 2.0 TDI 4x4": ReliabilityProfile(
-        published_reliability=94.7,
-        owner_reliability=90.0,
-        complexity=12,
+        survey_score=94.7,
+        owner_score=90.0,
+        complexity_risk=12,
         failure_cost_risk=7,
-        evidence_uncertainty=2,
+        evidence_confidence=86.0,
+        known_failure_modes=("electrics", "EGR/DPF", "AWD/diesel ancillaries"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -84,11 +89,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Tesla Model Y": ReliabilityProfile(
-        published_reliability=97.1,
-        owner_reliability=90.0,
-        complexity=8,
+        survey_score=97.1,
+        owner_score=90.0,
+        complexity_risk=8,
         failure_cost_risk=6,
-        evidence_uncertainty=4,
+        evidence_confidence=80.0,
+        known_failure_modes=("build quality", "suspension/wear items", "electronics/trim"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -98,11 +104,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Toyota Avensis": ReliabilityProfile(
-        published_reliability=94.0,
-        owner_reliability=90.0,
-        complexity=5,
+        survey_score=94.0,
+        owner_score=90.0,
+        complexity_risk=5,
         failure_cost_risk=4,
-        evidence_uncertainty=3,
+        evidence_confidence=58.0,
+        known_failure_modes=("generic assumption",),
         sources=(
             ReliabilitySource(
                 publisher="Model assumption",
@@ -112,11 +119,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Toyota RAV4 Hybrid": ReliabilityProfile(
-        published_reliability=99.2,
-        owner_reliability=98.0,
-        complexity=6,
+        survey_score=99.2,
+        owner_score=98.0,
+        complexity_risk=6,
         failure_cost_risk=3,
-        evidence_uncertainty=1,
+        evidence_confidence=95.0,
+        known_failure_modes=("minor trim/electrics",),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -126,11 +134,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Mitsubishi Outlander PHEV": ReliabilityProfile(
-        published_reliability=86.0,
-        owner_reliability=84.0,
-        complexity=10,
+        survey_score=86.0,
+        owner_score=84.0,
+        complexity_risk=10,
         failure_cost_risk=9,
-        evidence_uncertainty=7,
+        evidence_confidence=72.0,
+        known_failure_modes=("battery degradation", "charger/BMS", "PHEV control systems"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -145,11 +154,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Volkswagen Passat GTE": ReliabilityProfile(
-        published_reliability=82.2,
-        owner_reliability=78.0,
-        complexity=15,
+        survey_score=82.2,
+        owner_score=78.0,
+        complexity_risk=15,
         failure_cost_risk=11,
-        evidence_uncertainty=4,
+        evidence_confidence=82.0,
+        known_failure_modes=("DSG", "hybrid control", "electrical/software"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",
@@ -159,11 +169,12 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
     "Skoda Superb 2.0 TDI 4x4": ReliabilityProfile(
-        published_reliability=98.0,
-        owner_reliability=88.0,
-        complexity=14,
+        survey_score=98.0,
+        owner_score=88.0,
+        complexity_risk=14,
         failure_cost_risk=8,
-        evidence_uncertainty=3,
+        evidence_confidence=84.0,
+        known_failure_modes=("EGR/DPF", "injectors", "diesel AWD ancillaries"),
         sources=(
             ReliabilitySource(
                 publisher="What Car?",

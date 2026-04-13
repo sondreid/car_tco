@@ -29,7 +29,13 @@ def test_mileage_penalty_applied():
 
 
 def test_custom_weights():
-    a = Assumptions(weight_published=1.0, weight_owner=0.0, weight_complexity=0.0)
+    a = Assumptions(
+        weight_evidence=1.0,
+        weight_technical_risk=0.0,
+        weight_confidence=0.0,
+        evidence_survey_weight=1.0,
+        evidence_owner_weight=0.0,
+    )
     score = reliability_score("Toyota RAV4 Hybrid", 2022, 50_000, assumptions=a)
     assert 90 <= score <= 98
 
@@ -51,9 +57,9 @@ def test_failure_cost_penalty_hurts_passat_more_than_rav4():
     assert passat["failure_cost_penalty"] > rav4["failure_cost_penalty"]
 
 
-def test_uncertainty_penalty_applies_to_outlander():
+def test_confidence_penalty_applies_to_outlander():
     outlander = reliability_breakdown("Mitsubishi Outlander PHEV", 2020, 60_000)
-    assert outlander["uncertainty_penalty"] > 0
+    assert outlander["reliability_confidence"] < 75
 
 
 def test_removing_risk_penalties_improves_score():
@@ -64,11 +70,16 @@ def test_removing_risk_penalties_improves_score():
         90_000,
         assumptions=Assumptions(
             failure_cost_penalty_per_point=0.0,
-            evidence_uncertainty_penalty_per_point=0.0,
-            reliability_disagreement_penalty=0.0,
+            disagreement_penalty_per_point=0.0,
+            single_source_penalty=0.0,
         ),
     )
     assert unpenalized > penalized
+
+
+def test_single_source_penalty_applies_to_avensis():
+    avensis = reliability_breakdown("Toyota Avensis", 2012, 182_000)
+    assert avensis["source_count_penalty"] > 0
 
 
 def test_score_floor():

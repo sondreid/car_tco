@@ -19,7 +19,7 @@ def depreciation_cost(
     model: str,
     price_nok: float,
     km: float,
-    reliability_score: float,
+    reliability: dict[str, float],
     assumptions: Assumptions | None = None,
 ) -> dict[str, float]:
     """
@@ -33,8 +33,8 @@ def depreciation_cost(
         Purchase price in NOK.
     km:
         Odometer at purchase (km).
-    reliability_score:
-        Composite reliability score for this car instance.
+    reliability:
+        Reliability breakdown for this car instance.
     assumptions:
         ``Assumptions`` instance; defaults to ``Assumptions()`` if omitted.
 
@@ -55,7 +55,10 @@ def depreciation_cost(
 
     factor = (
         resid_base
-        + (reliability_score - 85) * assumptions.residual_reliability_sensitivity
+        + (reliability["reliability_score"] - 85) * assumptions.residual_reliability_sensitivity
+        - reliability["technical_risk_penalty"] * assumptions.residual_technical_risk_penalty_per_point
+        - max(75 - reliability["reliability_confidence"], 0)
+        * assumptions.residual_low_confidence_penalty_per_point
         - (km_excess / 10_000) * assumptions.residual_km_penalty_per_10k
     )
     factor = max(assumptions.residual_floor, min(assumptions.residual_ceiling, factor))

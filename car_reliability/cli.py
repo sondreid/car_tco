@@ -85,6 +85,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Estimate reference prices from current FINN listings before running TCO.",
     )
     p.add_argument(
+        "--use-cached-scraped-prices", action="store_true",
+        help="Use cached scraped FINN prices only; do not fetch live data.",
+    )
+    p.add_argument(
+        "--price-cache-file", default=None, metavar="PATH",
+        help="Path to cached scraped price JSON file (default: reports/finn_price_cache.json).",
+    )
+    p.add_argument(
         "--year-tolerance", type=int, default=None, metavar="YEARS",
         help="Max year difference for scraped price matches (default: 1).",
     )
@@ -94,7 +102,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--min-matches", type=int, default=None, metavar="N",
-        help="Minimum matching FINN listings required before using the scraped mean (default: 2).",
+        help="Minimum matching FINN listings required before using the scraped price estimate (default: 2).",
     )
 
     # ── Driving / horizon ─────────────────────────────────────────────────────
@@ -133,6 +141,8 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.scrape_prices and args.use_cached_scraped_prices:
+        parser.error("--scrape-prices and --use-cached-scraped-prices cannot be used together")
 
     # Build Assumptions, only overriding fields the user passed
     kw: dict = {}
@@ -166,7 +176,7 @@ def main(argv: list[str] | None = None) -> None:
         price_overrides = dict(args.price)
 
     estimator_config = None
-    if args.scrape_prices:
+    if args.scrape_prices or args.use_cached_scraped_prices:
         estimator_kw: dict = {}
         if args.year_tolerance is not None:
             estimator_kw["year_tolerance"] = args.year_tolerance
@@ -179,8 +189,10 @@ def main(argv: list[str] | None = None) -> None:
     run(
         assumptions=assumptions,
         price_overrides=price_overrides or None,
-        price_estimation=args.scrape_prices,
+        price_estimation=args.scrape_prices or args.use_cached_scraped_prices,
         price_estimator_config=estimator_config,
+        use_cached_scraped_prices=args.use_cached_scraped_prices,
+        price_cache_file=args.price_cache_file,
         output_dir=args.output_dir,
         output_prefix=args.output_prefix,
         write_output=not args.no_output,

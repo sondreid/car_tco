@@ -2,14 +2,11 @@
 Composite reliability score (0–100) for a specific car instance.
 
 The score is a weighted blend of:
-  - Published/source-backed reliability rating
-  - Owner-reported reliability
-  - Inverse mechanical complexity (100 - complexity)
+  - Evidence score (survey + owner-reported reliability)
+  - Technical-risk score
+  - Evidence confidence score
 
 Penalised for:
-  - Disagreement between published and owner evidence
-  - Failure-cost asymmetry
-  - Evidence uncertainty / mixed signals
   - Age beyond a 4-year grace period
   - High mileage beyond 60 000 km at purchase
 
@@ -40,21 +37,25 @@ def reliability_breakdown(
         assumptions = Assumptions()
 
     profile = RELIABILITY_PROFILES[model]
-    base = (
-        assumptions.weight_published * profile.published_reliability
-        + assumptions.weight_owner * profile.owner_reliability
-        + assumptions.weight_complexity * (100 - profile.complexity)
+    evidence_score = (
+        assumptions.evidence_survey_weight * profile.survey_score
+        + assumptions.evidence_owner_weight * profile.owner_score
     )
-
-    disagreement_penalty = (
-        abs(profile.published_reliability - profile.owner_reliability)
-        * assumptions.reliability_disagreement_penalty
-    )
+    complexity_penalty = profile.complexity_risk * assumptions.complexity_penalty_per_point
     failure_cost_penalty = (
         profile.failure_cost_risk * assumptions.failure_cost_penalty_per_point
     )
-    uncertainty_penalty = (
-        profile.evidence_uncertainty * assumptions.evidence_uncertainty_penalty_per_point
+    technical_risk_penalty = complexity_penalty + failure_cost_penalty
+    technical_risk_score = max(0.0, 100.0 - technical_risk_penalty)
+
+    disagreement_penalty = (
+        abs(profile.survey_score - profile.owner_score)
+        * assumptions.disagreement_penalty_per_point
+    )
+    source_count_penalty = assumptions.single_source_penalty if len(profile.sources) < 2 else 0.0
+    confidence_score = max(
+        0.0,
+        min(100.0, profile.evidence_confidence - disagreement_penalty - source_count_penalty),
     )
 
     age_years = reference_year - int(year)
@@ -64,24 +65,27 @@ def reliability_breakdown(
     km_penalty = (km_excess / 10_000) * assumptions.mileage_penalty_per_10k
 
     raw_score = (
-        base
-        - disagreement_penalty
-        - failure_cost_penalty
-        - uncertainty_penalty
+        assumptions.weight_evidence * evidence_score
+        + assumptions.weight_technical_risk * technical_risk_score
+        + assumptions.weight_confidence * confidence_score
         - age_penalty
         - km_penalty
     )
     score = round(max(_SCORE_FLOOR, min(_SCORE_CEILING, raw_score)), 1)
 
     return {
-        "base": round(base, 2),
+        "reliability_evidence_score": round(evidence_score, 2),
+        "technical_robustness": round(technical_risk_score, 2),
+        "reliability_confidence": round(confidence_score, 2),
         "disagreement_penalty": round(disagreement_penalty, 2),
+        "source_count_penalty": round(source_count_penalty, 2),
+        "complexity_penalty": round(complexity_penalty, 2),
         "failure_cost_penalty": round(failure_cost_penalty, 2),
-        "uncertainty_penalty": round(uncertainty_penalty, 2),
-        "age_penalty": round(age_penalty, 2),
-        "km_penalty": round(km_penalty, 2),
+        "technical_risk_penalty": round(technical_risk_penalty, 2),
+        "reliability_age_penalty": round(age_penalty, 2),
+        "reliability_km_penalty": round(km_penalty, 2),
         "raw_score": round(raw_score, 2),
-        "score": score,
+        "reliability_score": score,
     }
 
 
@@ -120,4 +124,4 @@ def reliability_score(
         km=km,
         assumptions=assumptions,
         reference_year=reference_year,
-    )["score"]
+    )["reliability_score"]

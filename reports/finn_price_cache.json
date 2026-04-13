@@ -1,0 +1,81 @@
+{
+  "entries": {
+    "Mercedes EQC": {
+      "comparable_count": 4,
+      "estimated_price_nok": 279216,
+      "match_count": 4,
+      "model": "Mercedes EQC",
+      "price_note": "median of nearest 4 comparable listings from 4 accepted matches",
+      "price_source": "finn_typical",
+      "reference_km": 126000,
+      "reference_year": 2020,
+      "scraped_at": "2026-04-13T14:04:41.160014+00:00"
+    },
+    "Mitsubishi Outlander PHEV": {
+      "comparable_count": 4,
+      "estimated_price_nok": 269450,
+      "match_count": 4,
+      "model": "Mitsubishi Outlander PHEV",
+      "price_note": "median of nearest 4 comparable listings from 4 accepted matches",
+      "price_source": "finn_typical",
+      "reference_km": 60000,
+      "reference_year": 2020,
+      "scraped_at": "2026-04-13T14:03:32.618654+00:00"
+    },
+    "Skoda Kodiaq 2.0 TDI 4x4": {
+      "comparable_count": 6,
+      "estimated_price_nok": 337216,
+      "match_count": 10,
+      "model": "Skoda Kodiaq 2.0 TDI 4x4",
+      "price_note": "median of nearest 6 comparable listings from 10 accepted matches",
+      "price_source": "finn_typical",
+      "reference_km": 132700,
+      "reference_year": 2018,
+      "scraped_at": "2026-04-13T14:03:54.588940+00:00"
+    },
+    "Skoda Superb 2.0 TDI 4x4": {
+      "comparable_count": 3,
+      "estimated_price_nok": 259532,
+      "match_count": 3,
+      "model": "Skoda Superb 2.0 TDI 4x4",
+      "price_note": "median of nearest 3 comparable listings from 3 accepted matches",
+      "price_source": "finn_typical",
+      "reference_km": 140000,
+      "reference_year": 2018,
+      "scraped_at": "2026-04-13T14:04:52.548708+00:00"
+    },
+    "Tesla Model Y": {
+      "comparable_count": 6,
+      "estimated_price_nok": 334950,
+      "match_count": 9,
+      "model": "Tesla Model Y",
+      "price_note": "median of nearest 6 comparable listings from 9 accepted matches",
+      "price_source": "finn_typical",
+      "reference_km": 68901,
+      "reference_year": 2021,
+      "scraped_at": "2026-04-13T14:04:25.021207+00:00"
+    },
+    "Toyota RAV4 Hybrid": {
+      "comparable_count": 3,
+      "estimated_price_nok": 255000,
+      "match_count": 3,
+      "model": "Toyota RAV4 Hybrid",
+      "price_note": "stub",
+      "price_source": "finn_typical",
+      "reference_km": 120000,
+      "reference_year": 2019,
+      "scraped_at": "2026-04-13T17:51:28.746176+00:00"
+    },
+    "Volkswagen Passat GTE": {
+      "comparable_count": 2,
+      "estimated_price_nok": 219450,
+      "match_count": 2,
+      "model": "Volkswagen Passat GTE",
+      "price_note": "median of nearest 2 comparable listings from 2 accepted matches",
+      "price_source": "finn_typical",
+      "reference_km": 90000,
+      "reference_year": 2020,
+      "scraped_at": "2026-04-13T14:03:40.942020+00:00"
+    }
+  }
+}

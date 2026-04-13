@@ -17,7 +17,7 @@ use the raw catalogue value instead.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -67,23 +67,32 @@ class Assumptions:
     """Petrol consumption when the ICE is running (L/100 km)."""
 
     # ── Reliability score weights ─────────────────────────────────────────────
-    weight_published: float = 0.55
-    """Weight of published reliability index in composite score."""
+    weight_evidence: float = 0.55
+    """Weight of evidence score in composite reliability."""
 
-    weight_owner: float = 0.20
-    """Weight of owner-reported reliability in composite score."""
+    weight_technical_risk: float = 0.30
+    """Weight of technical-risk score in composite reliability."""
 
-    weight_complexity: float = 0.25
-    """Weight of inverse mechanical complexity in composite score."""
+    weight_confidence: float = 0.15
+    """Weight of evidence confidence score in composite reliability."""
 
-    reliability_disagreement_penalty: float = 0.15
-    """Penalty applied to the gap between published and owner reliability."""
+    evidence_survey_weight: float = 0.60
+    """Survey/source-backed weight inside evidence score."""
 
-    failure_cost_penalty_per_point: float = 0.9
-    """Penalty per failure-cost-risk point."""
+    evidence_owner_weight: float = 0.40
+    """Owner-reported weight inside evidence score."""
 
-    evidence_uncertainty_penalty_per_point: float = 0.6
-    """Penalty per evidence-uncertainty point."""
+    complexity_penalty_per_point: float = 1.6
+    """Penalty per complexity-risk point when building technical-risk score."""
+
+    failure_cost_penalty_per_point: float = 2.2
+    """Penalty per failure-cost-risk point when building technical-risk score."""
+
+    disagreement_penalty_per_point: float = 0.25
+    """Confidence penalty per point of disagreement between survey and owner evidence."""
+
+    single_source_penalty: float = 8.0
+    """Confidence penalty when only one external source is available."""
 
     # Age / mileage penalty toggles
     age_penalty_per_year: float = 1.5
@@ -93,17 +102,24 @@ class Assumptions:
     """Score penalty per 10 000 km driven beyond 60 000 km."""
 
     # ── Maintenance ───────────────────────────────────────────────────────────
-    maintenance_reliability_sensitivity: float = 1 / 60
-    """
-    How much maintenance cost scales with reliability shortfall.
-    Formula: base_maint * (1 + (100 - rel) * sensitivity) * years
-    """
+    failure_risk_cost_per_point: float = 220.0
+    """Annual failure-risk cost per technical-risk penalty point."""
+
+    reliability_shortfall_cost_per_point: float = 45.0
+    """Annual failure-risk cost per reliability point below 85."""
+
+    low_confidence_cost_per_point: float = 35.0
+    """Annual failure-risk cost per confidence point below 75."""
 
     # ── Residual value ────────────────────────────────────────────────────────
-    residual_reliability_sensitivity: float = 0.003
-    """
-    Residual value adjustment per point of reliability above/below 85.
-    """
+    residual_reliability_sensitivity: float = 0.002
+    """Residual adjustment per point of reliability above/below 85."""
+
+    residual_technical_risk_penalty_per_point: float = 0.0025
+    """Residual penalty per point of technical-risk penalty."""
+
+    residual_low_confidence_penalty_per_point: float = 0.0015
+    """Residual penalty per point of confidence below 75."""
 
     residual_km_penalty_per_10k: float = 0.01
     """

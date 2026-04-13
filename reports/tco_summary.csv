@@ -1,0 +1,11 @@
+model,reference_price_nok,price_source,price_match_count,reference_year,reference_km,reliability_score,known_repairs_nok,maintenance_nok,energy_nok,depreciation_nok,investment_cost_nok,total_cost_nok,cost_per_month_nok
+Tesla Model Y,264532,manual,0,2021,68901,83.3,0,24928,12150,83354,26743,147175,4088
+Toyota Avensis,0,manual,0,2012,182000,62.7,50000,93785,70380,0,0,164165,4560
+Mitsubishi Outlander PHEV,220000,manual,0,2020,60000,71.0,0,40050,37364,70840,22150,170404,4733
+Toyota RAV4 Hybrid,280000,manual,0,2019,120000,84.9,0,30040,50824,63084,29815,173763,4827
+Peugeot 508 SW 2.0 BlueHDi,139532,manual,0,2015,132500,60.0,0,52500,49500,74301,12286,188587,5239
+Skoda Superb 2.0 TDI 4x4,180000,manual,0,2018,140000,70.1,0,49445,62370,70146,17391,199352,5538
+Mercedes EQC,260000,manual,0,2020,126000,61.0,0,47025,16200,115180,24289,202694,5630
+Mazda CX-5 diesel AWD,179532,manual,0,2016,112200,66.3,0,46850,57420,81885,16631,202786,5633
+Volkswagen Passat GTE,200000,manual,0,2020,90000,63.7,0,52965,66398,84780,18913,223056,6196
+Skoda Kodiaq 2.0 TDI 4x4,269000,manual,0,2018,132700,72.1,0,46148,65340,109322,25721,246531,6848

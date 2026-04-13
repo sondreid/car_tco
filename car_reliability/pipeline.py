@@ -23,6 +23,8 @@ def run(
     price_estimation: bool = False,
     price_estimator_config: PriceEstimatorConfig | None = None,
     price_estimator: FinnPriceEstimator | None = None,
+    use_cached_scraped_prices: bool = False,
+    price_cache_file: str | Path | None = None,
     extra_cars: list[dict] | None = None,
     output_dir: str | Path = "reports",
     output_prefix: str = "tco",
@@ -38,7 +40,7 @@ def run(
         Override any defaults by passing a custom ``Assumptions`` instance.
     price_overrides:
         Map of {model_name: new_price_nok} — patches purchase price without
-        editing source code.  Example::
+        editing source code in the default non-scraping mode. Example::
 
             price_overrides={"Toyota RAV4 Hybrid": 260_000}
     price_estimation:
@@ -48,6 +50,10 @@ def run(
         Optional FINN scraper config.
     price_estimator:
         Optional estimator instance. Useful for tests.
+    use_cached_scraped_prices:
+        When True, use cached scraped prices only and do not query FINN.
+    price_cache_file:
+        JSON cache path for scraped prices.
 
     extra_cars:
         List of additional car dicts to include beyond the default fleet.
@@ -75,9 +81,10 @@ def run(
             fleet,
             config=price_estimator_config,
             estimator=price_estimator,
+            cache_mode=use_cached_scraped_prices,
+            cache_file=price_cache_file,
         )
-
-    if price_overrides:
+    elif price_overrides:
         for car in fleet:
             if car["model"] in price_overrides:
                 car["price_nok"] = float(price_overrides[car["model"]])
