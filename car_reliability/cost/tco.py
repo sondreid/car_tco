@@ -37,13 +37,14 @@ def compute_tco(
     model = car["model"]
     price = float(car["price_nok"])
     year = int(car["year"])
+    model_year = int(car.get("model_year", year))
     km = float(car["km"])
     known_repairs = round(float(car.get("known_repairs_nok", 0)))
     existing_car = bool(car.get("existing_car") or car.get("EXISTING_CAR"))
     current_resale_value = round(float(car.get("current_resale_value_nok", 0)))
     foregone_resale = current_resale_value if existing_car else 0
 
-    rel = reliability_breakdown(model, year, km, assumptions)
+    rel = reliability_breakdown(model, year, km, model_year=model_year, assumptions=assumptions)
     maint = maintenance_cost(model, rel, assumptions)
     energy = energy_cost(model, assumptions)
     dep = depreciation_cost(model, price, km, rel, assumptions)
@@ -69,6 +70,7 @@ def compute_tco(
         "price_fallback_used": bool(car.get("price_fallback_used", False)),
         "price_note": car.get("price_note", ""),
         "reference_year": year,
+        "reference_model_year": model_year,
         "reference_km": round(km),
         **rel,
         "known_repairs_nok": known_repairs,

@@ -10,6 +10,7 @@ that will be analysed.  Each entry has the shape expected by the pipeline:
         "description": str,
         "price_nok": float,
         "year": int,
+        "model_year": int,     # optional; defaults to year when omitted
         "km": float,
         "url": str,
     }
@@ -20,7 +21,7 @@ at runtime via ``extra_cars``).  Prices can be patched at runtime via
 
 This module supports two ways of creating a car instance:
 1. ``build_car("Model Name")`` → copy the repo's default reference instance
-2. ``build_car("Model Name", price_nok=..., year=..., km=...)`` → copy the
+2. ``build_car("Model Name", price_nok=..., year=..., model_year=..., km=...)`` → copy the
    default reference instance and override the specific fields
 """
 
@@ -45,10 +46,21 @@ _DEFAULT_FLEET: list[dict] = [
     },
     {
         "model": "Toyota RAV4 Hybrid",
-        "name": "Toyota RAV4 Hybrid reference",
-        "description": "manual reference with updated spec fuel consumption",
-        "price_nok": 280_000,
-        "year": 2019,
+        "name": "Toyota RAV4 Hybrid 2018 reference",
+        "description": "manual reference older-generation hybrid for year comparison",
+        "price_nok": 240_000,
+        "year": 2018,
+        "model_year": 2018,
+        "km": 120_000,
+        "url": "",
+    },
+    {
+        "model": "Toyota RAV4 Hybrid",
+        "name": "Toyota RAV4 Hybrid 2020 reference",
+        "description": "manual reference newer-generation hybrid for year comparison",
+        "price_nok": 300_000,
+        "year": 2020,
+        "model_year": 2020,
         "km": 120_000,
         "url": "",
     },
@@ -136,7 +148,7 @@ def build_car(model: str, **overrides) -> dict:
     Two modes are supported:
     - model only: copy the repo's default reference instance for that model
     - model + overrides: copy the default instance, then patch fields such as
-      ``price_nok``, ``year``, ``km``, ``known_repairs_nok``,
+      ``price_nok``, ``year``, ``model_year``, ``km``, ``known_repairs_nok``,
       ``current_resale_value_nok`` or ``url``
 
     If the model has no default reference instance, the caller must supply at
@@ -156,6 +168,8 @@ def build_car(model: str, **overrides) -> dict:
 
     car.update(overrides)
     car["model"] = model
+    if "model_year" not in car:
+        car["model_year"] = int(car["year"])
     return car
 
 
@@ -184,5 +198,9 @@ def build_reference_fleet(
 
     if extra_cars:
         fleet.extend(extra_cars)
+
+    for car in fleet:
+        if "model_year" not in car:
+            car["model_year"] = int(car["year"])
 
     return fleet

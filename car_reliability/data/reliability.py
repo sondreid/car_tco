@@ -27,6 +27,14 @@ class ReliabilityProfile:
     sources: tuple[ReliabilitySource, ...]
 
 
+@dataclass(frozen=True)
+class ReliabilityYearObservation:
+    """One year-specific reliability observation."""
+
+    year: int
+    profile: ReliabilityProfile
+
+
 RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
     "Mercedes EQC": ReliabilityProfile(
         survey_score=83.0,
@@ -184,3 +192,59 @@ RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
         ),
     ),
 }
+
+RELIABILITY_YEAR_PROFILES: dict[str, tuple[ReliabilityYearObservation, ...]] = {
+    "Toyota RAV4 Hybrid": (
+        ReliabilityYearObservation(
+            year=2018,
+            profile=ReliabilityProfile(
+                survey_score=96.0,
+                owner_score=94.0,
+                complexity_risk=6,
+                failure_cost_risk=3,
+                evidence_confidence=88.0,
+                known_failure_modes=("12V battery/aux electrical issues", "trim/noise complaints"),
+                sources=(
+                    ReliabilitySource(
+                        publisher="Consumer Reports",
+                        url="https://www.consumerreports.org/cars/toyota/rav4-hybrid/2018/reliability/",
+                        summary="2018 RAV4 Hybrid was more reliable than peers, with owner reports clustering around electrical accessories, noises/leaks and liftgate hardware.",
+                    ),
+                ),
+            ),
+        ),
+        ReliabilityYearObservation(
+            year=2020,
+            profile=ReliabilityProfile(
+                survey_score=96.0,
+                owner_score=95.0,
+                complexity_risk=7,
+                failure_cost_risk=4,
+                evidence_confidence=90.0,
+                known_failure_modes=("engine cooling", "fuel system/emissions", "electric motor and driveline complaints"),
+                sources=(
+                    ReliabilitySource(
+                        publisher="Consumer Reports",
+                        url="https://www.consumerreports.org/cars/toyota/rav4-hybrid/2020/reliability/",
+                        summary="2020 RAV4 Hybrid was more reliable than peers, with owner reports centered on engine cooling, fuel-system/emissions, electric motor and driveline areas.",
+                    ),
+                ),
+            ),
+        ),
+    ),
+}
+
+
+def resolve_reliability_profile(
+    model: str,
+    model_year: int | None = None,
+) -> ReliabilityProfile:
+    """Return the best reliability profile for a model and optional model year."""
+
+    observations = RELIABILITY_YEAR_PROFILES.get(model, ())
+    if model_year is not None and observations:
+        return min(
+            observations,
+            key=lambda observation: (abs(observation.year - model_year), observation.year),
+        ).profile
+    return RELIABILITY_PROFILES[model]

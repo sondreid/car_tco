@@ -33,6 +33,8 @@ class PriceEstimatorConfig:
     source: str = "finn"
     year_tolerance: int = 1
     km_tolerance: int = 20_000
+    max_km: int | None = None
+    max_price_nok: int | None = None
     min_matches: int = 2
     comparable_subset_size: int = 6
     max_results: int = 50
@@ -255,7 +257,7 @@ def estimate_fleet_prices(
         else:
             estimate = service.estimate_price(car)
             if estimate.price_source == "finn_typical":
-                cache_updates[car["model"]] = build_cache_entry(car, estimate)
+                cache_updates[build_cache_key(car)] = build_cache_entry(car, estimate)
         if estimate.estimated_price_nok is not None:
             car["price_nok"] = float(estimate.estimated_price_nok)
         car["price_source"] = estimate.price_source
@@ -297,6 +299,18 @@ def save_price_cache(path: Path, entries: dict[str, dict]) -> None:
     )
 
 
+def effective_model_year(car: dict) -> int:
+    """Return the year used for listing matching and reliability targeting."""
+
+    return int(car.get("model_year", car["year"]))
+
+
+def build_cache_key(car: dict) -> str:
+    """Build a cache key stable across model-year experiments."""
+
+    return f"{car['model']}::{effective_model_year(car)}::{int(float(car['km']))}"
+
+
 def build_cache_entry(car: dict, estimate: FinnPriceEstimate) -> dict:
     """Build one cache entry."""
 
@@ -304,12 +318,14 @@ def build_cache_entry(car: dict, estimate: FinnPriceEstimate) -> dict:
 
     return {
         "model": car["model"],
+        "cache_key": build_cache_key(car),
         "estimated_price_nok": estimate.estimated_price_nok,
         "price_source": estimate.price_source,
         "match_count": estimate.match_count,
         "comparable_count": estimate.comparable_count,
         "price_note": estimate.notes,
         "reference_year": int(car["year"]),
+        "reference_model_year": effective_model_year(car),
         "reference_km": int(float(car["km"])),
         "scraped_at": datetime.now(UTC).isoformat(),
     }
@@ -319,10 +335,18 @@ def estimate_price_from_cache(car: dict, cache: dict[str, dict]) -> FinnPriceEst
     """Estimate price from cache only."""
 
     model = car["model"]
-    if model not in cache:
+    cache_key = build_cache_key(car)
+    if cache_key in cache:
+        entry = cache[cache_key]
+    else:
+        entry = _find_matching_cache_entry(car, cache)
+    if entry is None:
         raise KeyError(f"missing cached scraped price for {model}")
-    entry = cache[model]
-    if entry.get("reference_year") != int(car["year"]) or entry.get("reference_km") != int(float(car["km"])):
+    if (
+        entry.get("reference_year") != int(car["year"])
+        or int(entry.get("reference_model_year", entry.get("reference_year"))) != effective_model_year(car)
+        or entry.get("reference_km") != int(float(car["km"]))
+    ):
         raise ValueError(f"cached scraped price for {model} does not match reference year/km")
     return FinnPriceEstimate(
         estimated_price_nok=int(entry["estimated_price_nok"]),
@@ -333,6 +357,26 @@ def estimate_price_from_cache(car: dict, cache: dict[str, dict]) -> FinnPriceEst
         notes=entry.get("price_note", ""),
         scraped_at=entry.get("scraped_at", ""),
     )
+
+
+def _find_matching_cache_entry(car: dict, cache: dict[str, dict]) -> dict | None:
+    """Return a cache entry matching the full car identity."""
+
+    target_year = int(car["year"])
+    target_model_year = effective_model_year(car)
+    target_km = int(float(car["km"]))
+
+    for key, entry in cache.items():
+        if key != car["model"] and entry.get("model") != car["model"]:
+            continue
+        if entry.get("reference_year") != target_year:
+            continue
+        if int(entry.get("reference_model_year", entry.get("reference_year"))) != target_model_year:
+            continue
+        if entry.get("reference_km") != target_km:
+            continue
+        return entry
+    return None
 
 
 def parse_search_results(html_text: str, max_results: int) -> list[FinnListing]:
@@ -402,9 +446,11 @@ def is_listing_match(
 
     if listing.year is None or listing.km is None:
         return False
-    if abs(listing.year - int(car["year"])) > config.year_tolerance:
+    if abs(listing.year - effective_model_year(car)) > config.year_tolerance:
         return False
-    if abs(listing.km - int(float(car["km"]))) > config.km_tolerance:
+    if listing.km > effective_max_km(car, config):
+        return False
+    if listing.price_nok > effective_max_price_nok(car, config):
         return False
     text = listing.combined_text
     if any(token in text for token in profile.excluded_tokens):
@@ -419,7 +465,7 @@ def select_nearest_comparables(
 ) -> list[FinnListing]:
     """Return the nearest comparable listings within the accepted match set."""
 
-    target_year = int(car["year"])
+    target_year = effective_model_year(car)
     target_km = int(float(car["km"]))
 
     def distance(listing: FinnListing) -> tuple[float, int, int, int]:
@@ -449,6 +495,22 @@ def build_generic_profile(model: str) -> _ModelProfile:
     query = " ".join(part for part in normalized.split() if len(part) > 2)
     tokens = tuple((part,) for part in query.split()[:2]) or ((normalized,),)
     return _ModelProfile(query=query, required_groups=tokens)
+
+
+def effective_max_km(car: dict, config: PriceEstimatorConfig) -> int:
+    """Return the km ceiling for listing acceptance."""
+
+    if config.max_km is not None:
+        return int(config.max_km)
+    return int(float(car["km"]))
+
+
+def effective_max_price_nok(car: dict, config: PriceEstimatorConfig) -> int:
+    """Return the price ceiling for listing acceptance."""
+
+    if config.max_price_nok is None:
+        return 10**12
+    return int(config.max_price_nok)
 
 
 def normalize_text(value: str) -> str:

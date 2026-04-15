@@ -112,6 +112,17 @@ df = run(
         )
     ]
 )
+
+df = run(
+    extra_cars=[
+        build_car(
+            "Toyota RAV4 Hybrid",
+            year=2020,
+            model_year=2019,
+            km=95_000,
+        )
+    ]
+)
 ```
 
 ---
@@ -194,6 +205,12 @@ The code supports two instance modes:
    This starts from the default reference instance and overrides only the
    fields you specify.
 
+If the listing year and the model year should differ in the comparison, pass
+`model_year=...`. That override is used for:
+- FINN year matching and cache identity
+- year-specific reliability profile selection
+- reliability age penalty
+
 For an already-owned car, use:
 - `existing_car=True`
 - `current_resale_value_nok=...`
@@ -232,6 +249,46 @@ car-reliability --use-cached-scraped-prices
 Cache-only mode uses the saved estimates and labels them
 `price_source=finn_cached`.
 It does not fall back to live fetching.
+
+Cached prices are matched against the full reference identity:
+- `model`
+- `year`
+- `model_year` when present, otherwise `year`
+- `km`
+
+This matters for model-year experiments. A `Toyota RAV4 Hybrid` `2018` entry
+and a `Toyota RAV4 Hybrid` `2020` entry are cached separately, so both must be
+present in `reports/finn_price_cache.json` if you want to rerun the full
+default fleet in cache-only mode.
+
+A typical workflow is:
+
+```bash
+# 1. Populate or refresh the cache from live FINN data
+car-reliability --scrape-prices --no-output
+
+# 2. Reuse the saved prices offline
+car-reliability --use-cached-scraped-prices
+```
+
+The same works from Python:
+
+```python
+from car_reliability.pipeline import run
+
+# Populate the cache
+run(price_estimation=True, write_output=False, verbose=False)
+
+# Reuse cached prices only
+df = run(
+    price_estimation=True,
+    use_cached_scraped_prices=True,
+)
+```
+
+If a cached entry is missing, or its `year` / `model_year` / `km` does not
+match the current reference car, cache-only mode raises an error and asks you
+to rerun with live scraping.
 
 Example:
 

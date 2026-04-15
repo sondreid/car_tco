@@ -10,8 +10,9 @@ _RAV4 = {
     "model": "Toyota RAV4 Hybrid",
     "name": "RAV4 test",
     "description": "",
-    "price_nok": 280_000,
-    "year": 2019,
+    "price_nok": 300_000,
+    "year": 2020,
+    "model_year": 2020,
     "km": 120_000,
     "url": "",
 }
@@ -128,14 +129,29 @@ def test_cached_scraped_price_in_pipeline(tmp_path):
     cache_file.write_text(
         """{
   "entries": {
-    "Toyota RAV4 Hybrid": {
+    "Toyota RAV4 Hybrid::2018::120000": {
       "model": "Toyota RAV4 Hybrid",
+      "cache_key": "Toyota RAV4 Hybrid::2018::120000",
       "estimated_price_nok": 250000,
       "price_source": "finn_typical",
       "match_count": 4,
       "comparable_count": 4,
       "price_note": "cached",
-      "reference_year": 2019,
+      "reference_year": 2018,
+      "reference_model_year": 2018,
+      "reference_km": 120000,
+      "scraped_at": "2026-04-13T00:00:00+00:00"
+    },
+    "Toyota RAV4 Hybrid::2020::120000": {
+      "model": "Toyota RAV4 Hybrid",
+      "cache_key": "Toyota RAV4 Hybrid::2020::120000",
+      "estimated_price_nok": 250000,
+      "price_source": "finn_typical",
+      "match_count": 4,
+      "comparable_count": 4,
+      "price_note": "cached",
+      "reference_year": 2020,
+      "reference_model_year": 2020,
       "reference_km": 120000,
       "scraped_at": "2026-04-13T00:00:00+00:00"
     },
@@ -258,14 +274,29 @@ def test_price_override_is_ignored_with_cached_scraped_prices(tmp_path):
     cache_file.write_text(
         """{
   "entries": {
-    "Toyota RAV4 Hybrid": {
+    "Toyota RAV4 Hybrid::2018::120000": {
       "model": "Toyota RAV4 Hybrid",
+      "cache_key": "Toyota RAV4 Hybrid::2018::120000",
       "estimated_price_nok": 250000,
       "price_source": "finn_typical",
       "match_count": 4,
       "comparable_count": 4,
       "price_note": "cached",
-      "reference_year": 2019,
+      "reference_year": 2018,
+      "reference_model_year": 2018,
+      "reference_km": 120000,
+      "scraped_at": "2026-04-13T00:00:00+00:00"
+    },
+    "Toyota RAV4 Hybrid::2020::120000": {
+      "model": "Toyota RAV4 Hybrid",
+      "cache_key": "Toyota RAV4 Hybrid::2020::120000",
+      "estimated_price_nok": 250000,
+      "price_source": "finn_typical",
+      "match_count": 4,
+      "comparable_count": 4,
+      "price_note": "cached",
+      "reference_year": 2020,
+      "reference_model_year": 2020,
       "reference_km": 120000,
       "scraped_at": "2026-04-13T00:00:00+00:00"
     },
@@ -412,6 +443,20 @@ def test_new_models_compute_tco():
     ):
         result = compute_tco(car)
         assert result["total_cost_nok"] > 0
+
+
+def test_tco_exposes_model_year_override():
+    result = compute_tco(
+        {"model": "Toyota RAV4 Hybrid", "price_nok": 240_000, "year": 2018, "model_year": 2018, "km": 120_000}
+    )
+    assert result["reference_year"] == 2018
+    assert result["reference_model_year"] == 2018
+
+
+def test_default_fleet_contains_two_rav4_years(tmp_path):
+    df = run(output_dir=tmp_path, verbose=False)
+    rav4_rows = df[df["model"] == "Toyota RAV4 Hybrid"]
+    assert set(rav4_rows["reference_model_year"].tolist()) == {2018, 2020}
 
 
 def test_model_y_failure_risk_cost_visible():

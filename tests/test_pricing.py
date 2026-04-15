@@ -6,8 +6,10 @@ from car_reliability.pricing.finn import (
     FinnPriceEstimator,
     PriceEstimatorConfig,
     estimate_price_from_cache,
+    is_listing_match,
     load_price_cache,
     save_price_cache,
+    FinnListing,
 )
 
 
@@ -49,7 +51,7 @@ _SEARCH_HTML = """
 </body></html>
 """
 
-_DETAIL_ONE = '"key":"year","value":["2020"] "key":"mileage","value":["64000"] "key":"price","value":["215000"]'
+_DETAIL_ONE = '"key":"year","value":["2020"] "key":"mileage","value":["60000"] "key":"price","value":["215000"]'
 _DETAIL_TWO = '"key":"year","value":["2020"] "key":"mileage","value":["59000"] "key":"price","value":["225000"]'
 _DETAIL_THREE = '"key":"year","value":["2020"] "key":"mileage","value":["61000"] "key":"price","value":["109000"]'
 
@@ -109,14 +111,16 @@ def test_cache_roundtrip_and_lookup(tmp_path):
     save_price_cache(
         cache_file,
         {
-            "Toyota RAV4 Hybrid": {
+            "Toyota RAV4 Hybrid::2019::120000": {
                 "model": "Toyota RAV4 Hybrid",
+                "cache_key": "Toyota RAV4 Hybrid::2019::120000",
                 "estimated_price_nok": 255_000,
                 "price_source": "finn_typical",
                 "match_count": 4,
                 "comparable_count": 4,
                 "price_note": "cached",
                 "reference_year": 2019,
+                "reference_model_year": 2019,
                 "reference_km": 120_000,
                 "scraped_at": "2026-04-13T00:00:00+00:00",
             }
@@ -140,3 +144,69 @@ def test_cache_lookup_fails_on_missing_model():
     except KeyError:
         return
     raise AssertionError("Expected KeyError for missing cached model")
+
+
+def test_cache_lookup_uses_model_year_when_present():
+    cache = {
+        "Toyota RAV4 Hybrid::2018::120000": {
+            "model": "Toyota RAV4 Hybrid",
+            "cache_key": "Toyota RAV4 Hybrid::2018::120000",
+            "estimated_price_nok": 235_000,
+            "price_source": "finn_typical",
+            "match_count": 3,
+            "comparable_count": 3,
+            "price_note": "cached",
+            "reference_year": 2019,
+            "reference_model_year": 2018,
+            "reference_km": 120_000,
+            "scraped_at": "2026-04-13T00:00:00+00:00",
+        }
+    }
+    estimate = estimate_price_from_cache(
+        {"model": "Toyota RAV4 Hybrid", "year": 2019, "model_year": 2018, "km": 120_000},
+        cache,
+    )
+    assert estimate.estimated_price_nok == 235_000
+
+
+def test_listing_match_allows_lower_km_but_rejects_higher_km():
+    car = {"model": "Toyota RAV4 Hybrid", "price_nok": 240_000, "year": 2018, "km": 120_000}
+    config = PriceEstimatorConfig()
+    low_km = FinnListing(
+        title="Toyota RAV4 Hybrid",
+        description="awd hybrid",
+        price_nok=235_000,
+        year=2018,
+        km=95_000,
+        url="https://example.com/low",
+    )
+    high_km = FinnListing(
+        title="Toyota RAV4 Hybrid",
+        description="awd hybrid",
+        price_nok=235_000,
+        year=2018,
+        km=125_000,
+        url="https://example.com/high",
+    )
+    from car_reliability.pricing.finn import _MODEL_PROFILES
+
+    profile = _MODEL_PROFILES["Toyota RAV4 Hybrid"]
+    assert is_listing_match(low_km, car, profile, config) is True
+    assert is_listing_match(high_km, car, profile, config) is False
+
+
+def test_listing_match_rejects_price_above_reference_price():
+    car = {"model": "Toyota RAV4 Hybrid", "price_nok": 240_000, "year": 2018, "km": 120_000}
+    config = PriceEstimatorConfig(max_price_nok=240_000)
+    expensive = FinnListing(
+        title="Toyota RAV4 Hybrid",
+        description="awd hybrid",
+        price_nok=245_000,
+        year=2018,
+        km=110_000,
+        url="https://example.com/expensive",
+    )
+    from car_reliability.pricing.finn import _MODEL_PROFILES
+
+    profile = _MODEL_PROFILES["Toyota RAV4 Hybrid"]
+    assert is_listing_match(expensive, car, profile, config) is False

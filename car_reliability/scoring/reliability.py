@@ -17,7 +17,7 @@ they can be toggled freely without touching this module.
 from __future__ import annotations
 
 from ..assumptions import Assumptions
-from ..data.reliability import RELIABILITY_PROFILES
+from ..data.reliability import resolve_reliability_profile
 
 _SCORE_FLOOR = 60.0
 _SCORE_CEILING = 98.0
@@ -27,6 +27,7 @@ def reliability_breakdown(
     model: str,
     year: int,
     km: float,
+    model_year: int | None = None,
     assumptions: Assumptions | None = None,
     reference_year: int = 2026,
 ) -> dict[str, float]:
@@ -36,7 +37,8 @@ def reliability_breakdown(
     if assumptions is None:
         assumptions = Assumptions()
 
-    profile = RELIABILITY_PROFILES[model]
+    effective_model_year = int(model_year) if model_year is not None else int(year)
+    profile = resolve_reliability_profile(model, effective_model_year)
     evidence_score = (
         assumptions.evidence_survey_weight * profile.survey_score
         + assumptions.evidence_owner_weight * profile.owner_score
@@ -58,7 +60,7 @@ def reliability_breakdown(
         min(100.0, profile.evidence_confidence - disagreement_penalty - source_count_penalty),
     )
 
-    age_years = reference_year - int(year)
+    age_years = reference_year - effective_model_year
     age_penalty = max(age_years - 4, 0) * assumptions.age_penalty_per_year
 
     km_excess = max(float(km) - 60_000, 0)
@@ -93,6 +95,7 @@ def reliability_score(
     model: str,
     year: int,
     km: float,
+    model_year: int | None = None,
     assumptions: Assumptions | None = None,
     reference_year: int = 2026,
 ) -> float:
@@ -122,6 +125,7 @@ def reliability_score(
         model=model,
         year=year,
         km=km,
+        model_year=model_year,
         assumptions=assumptions,
         reference_year=reference_year,
     )["reliability_score"]

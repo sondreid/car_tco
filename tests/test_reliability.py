@@ -86,3 +86,36 @@ def test_score_floor():
     # Very old, very high km car should hit the floor
     score = reliability_score("Skoda Superb 2.0 TDI 4x4", 2005, 400_000)
     assert score == 60.0
+
+
+def test_rav4_model_year_override_changes_profile():
+    older_generation = reliability_breakdown(
+        "Toyota RAV4 Hybrid",
+        year=2018,
+        model_year=2018,
+        km=120_000,
+    )
+    newer_generation = reliability_breakdown(
+        "Toyota RAV4 Hybrid",
+        year=2020,
+        model_year=2020,
+        km=120_000,
+    )
+    assert older_generation["failure_cost_penalty"] < newer_generation["failure_cost_penalty"]
+    assert older_generation["reliability_confidence"] != newer_generation["reliability_confidence"]
+
+
+def test_rav4_reliability_uses_nearest_year_when_exact_year_missing():
+    nearest_2018 = reliability_breakdown(
+        "Toyota RAV4 Hybrid",
+        year=2019,
+        model_year=2019,
+        km=120_000,
+    )
+    exact_2018 = reliability_breakdown(
+        "Toyota RAV4 Hybrid",
+        year=2018,
+        model_year=2018,
+        km=120_000,
+    )
+    assert nearest_2018["failure_cost_penalty"] == exact_2018["failure_cost_penalty"]
