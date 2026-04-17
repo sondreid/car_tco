@@ -12,6 +12,7 @@ def maintenance_cost(
     model: str,
     reliability: dict[str, float],
     assumptions: Assumptions | None = None,
+    scheduled_maintenance_override_nok: float | None = None,
 ) -> dict[str, float]:
     """
     Total maintenance cost (NOK) over ``assumptions.horizon_years``.
@@ -35,9 +36,12 @@ def maintenance_cost(
     if assumptions is None:
         assumptions = Assumptions()
 
-    scheduled = (
-        CAR_CATALOGUE[model]["scheduled_maintenance_nok"] * assumptions.horizon_years
+    scheduled_base = (
+        float(scheduled_maintenance_override_nok)
+        if scheduled_maintenance_override_nok is not None
+        else float(CAR_CATALOGUE[model]["scheduled_maintenance_nok"])
     )
+    scheduled = scheduled_base * assumptions.horizon_years
     technical_penalty = reliability["technical_risk_penalty"]
     score_shortfall = max(85 - reliability["reliability_score"], 0)
     low_confidence = max(75 - reliability["reliability_confidence"], 0)

@@ -1,8 +1,10 @@
-"""Source-backed reliability inputs."""
+"""Source-backed reliability inputs loaded from checked-in JSON."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+from ._json import load_json_data
 
 
 @dataclass(frozen=True)
@@ -35,204 +37,56 @@ class ReliabilityYearObservation:
     profile: ReliabilityProfile
 
 
-RELIABILITY_PROFILES: dict[str, ReliabilityProfile] = {
-    "Mercedes EQC": ReliabilityProfile(
-        survey_score=83.0,
-        owner_score=81.0,
-        complexity_risk=14,
-        failure_cost_risk=10,
-        evidence_confidence=66.0,
-        known_failure_modes=("high-voltage systems", "air suspension/electronics", "premium EV ancillaries"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/mercedes-benz/eqc/4x4/used-review/n23007/reliability",
-                summary="EQC was not in the latest survey; Mercedes brand placed 22nd of 31 manufacturers.",
-            ),
-        ),
-    ),
-    "Mazda CX-5 diesel AWD": ReliabilityProfile(
-        survey_score=88.5,
-        owner_score=84.0,
-        complexity_risk=9,
-        failure_cost_risk=7,
-        evidence_confidence=79.0,
-        known_failure_modes=("DPF", "injectors", "exhaust/emissions ancillaries"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/mazda/cx-5/estate/used-review/n947/reliability",
-                summary="Diesel CX-5 scored 88.5% with DPF and exhaust-related complaints noted.",
-            ),
-        ),
-    ),
-    "Peugeot 508 SW 2.0 BlueHDi": ReliabilityProfile(
-        survey_score=79.0,
-        owner_score=76.0,
-        complexity_risk=9,
-        failure_cost_risk=8,
-        evidence_confidence=60.0,
-        known_failure_modes=("electrics", "diesel emissions hardware", "older French estate ancillaries"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/peugeot/508/estate/used-review/n859/reliability",
-                summary="Older 508 SW was not included in the survey; Peugeot brand result was poor and electrical issues were noted.",
-            ),
-        ),
-    ),
-    "Skoda Kodiaq 2.0 TDI 4x4": ReliabilityProfile(
-        survey_score=94.7,
-        owner_score=90.0,
-        complexity_risk=12,
-        failure_cost_risk=7,
-        evidence_confidence=86.0,
-        known_failure_modes=("electrics", "EGR/DPF", "AWD/diesel ancillaries"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/skoda/kodiaq/estate/used-review/n954/reliability",
-                summary="Diesel Kodiaq scored 94.7% and finished fourth in class, with mainly electrical and exhaust issues.",
-            ),
-        ),
-    ),
-    "Tesla Model Y": ReliabilityProfile(
-        survey_score=97.1,
-        owner_score=90.0,
-        complexity_risk=8,
-        failure_cost_risk=6,
-        evidence_confidence=80.0,
-        known_failure_modes=("build quality", "suspension/wear items", "electronics/trim"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/tesla/model-y/estate/used-review/n25945/reliability",
-                summary="Model Y scored 97.1% and finished third of 27 electric SUVs, with build-quality complaints more common than drivetrain faults.",
-            ),
-        ),
-    ),
-    "Toyota Avensis": ReliabilityProfile(
-        survey_score=94.0,
-        owner_score=90.0,
-        complexity_risk=5,
-        failure_cost_risk=4,
-        evidence_confidence=58.0,
-        known_failure_modes=("generic assumption",),
-        sources=(
-            ReliabilitySource(
-                publisher="Model assumption",
-                url="",
-                summary="Generic Avensis assumption pending exact year and engine.",
-            ),
-        ),
-    ),
-    "Toyota RAV4 Hybrid": ReliabilityProfile(
-        survey_score=99.2,
-        owner_score=98.0,
-        complexity_risk=6,
-        failure_cost_risk=3,
-        evidence_confidence=95.0,
-        known_failure_modes=("minor trim/electrics",),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/toyota/rav4/4x4/used-review/n22427/reliability",
-                summary="99.2% reliability score and only 2% of owners reporting faults.",
-            ),
-        ),
-    ),
-    "Mitsubishi Outlander PHEV": ReliabilityProfile(
-        survey_score=86.0,
-        owner_score=84.0,
-        complexity_risk=10,
-        failure_cost_risk=9,
-        evidence_confidence=72.0,
-        known_failure_modes=("battery degradation", "charger/BMS", "PHEV control systems"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/mitsubishi/outlander/4x4/used-review/n769/reliability",
-                summary="PHEV placed 13th of 14 hybrids in the survey, despite Mitsubishi brand strength.",
-            ),
-            ReliabilitySource(
-                publisher="Electrifying",
-                url="https://www.electrifying.com/used-reviews/mitsubishi/outlander-phev/review",
-                summary="Used-buyer guide is materially more positive than the What Car? ranking.",
-            ),
-        ),
-    ),
-    "Volkswagen Passat GTE": ReliabilityProfile(
-        survey_score=82.2,
-        owner_score=78.0,
-        complexity_risk=15,
-        failure_cost_risk=11,
-        evidence_confidence=82.0,
-        known_failure_modes=("DSG", "hybrid control", "electrical/software"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/volkswagen/passat-gte/estate/used-review/n18007/reliability",
-                summary="82.2% reliability score and 19th of 20 executive cars.",
-            ),
-        ),
-    ),
-    "Skoda Superb 2.0 TDI 4x4": ReliabilityProfile(
-        survey_score=98.0,
-        owner_score=88.0,
-        complexity_risk=14,
-        failure_cost_risk=8,
-        evidence_confidence=84.0,
-        known_failure_modes=("EGR/DPF", "injectors", "diesel AWD ancillaries"),
-        sources=(
-            ReliabilitySource(
-                publisher="What Car?",
-                url="https://www.whatcar.com/skoda/superb/estate/used-review/n916/reliability",
-                summary="Diesel estate counterpart ranked near the top of the class with a 98% score.",
-            ),
-        ),
-    ),
-}
+def _build_source(payload: dict) -> ReliabilitySource:
+    return ReliabilitySource(
+        publisher=str(payload["publisher"]),
+        url=str(payload["url"]),
+        summary=str(payload["summary"]),
+    )
 
-RELIABILITY_YEAR_PROFILES: dict[str, tuple[ReliabilityYearObservation, ...]] = {
-    "Toyota RAV4 Hybrid": (
-        ReliabilityYearObservation(
-            year=2018,
-            profile=ReliabilityProfile(
-                survey_score=96.0,
-                owner_score=94.0,
-                complexity_risk=6,
-                failure_cost_risk=3,
-                evidence_confidence=88.0,
-                known_failure_modes=("12V battery/aux electrical issues", "trim/noise complaints"),
-                sources=(
-                    ReliabilitySource(
-                        publisher="Consumer Reports",
-                        url="https://www.consumerreports.org/cars/toyota/rav4-hybrid/2018/reliability/",
-                        summary="2018 RAV4 Hybrid was more reliable than peers, with owner reports clustering around electrical accessories, noises/leaks and liftgate hardware.",
-                    ),
-                ),
-            ),
-        ),
-        ReliabilityYearObservation(
-            year=2020,
-            profile=ReliabilityProfile(
-                survey_score=96.0,
-                owner_score=95.0,
-                complexity_risk=7,
-                failure_cost_risk=4,
-                evidence_confidence=90.0,
-                known_failure_modes=("engine cooling", "fuel system/emissions", "electric motor and driveline complaints"),
-                sources=(
-                    ReliabilitySource(
-                        publisher="Consumer Reports",
-                        url="https://www.consumerreports.org/cars/toyota/rav4-hybrid/2020/reliability/",
-                        summary="2020 RAV4 Hybrid was more reliable than peers, with owner reports centered on engine cooling, fuel-system/emissions, electric motor and driveline areas.",
-                    ),
-                ),
-            ),
-        ),
-    ),
-}
+
+def _build_profile(payload: dict) -> ReliabilityProfile:
+    return ReliabilityProfile(
+        survey_score=float(payload["survey_score"]),
+        owner_score=float(payload["owner_score"]),
+        complexity_risk=int(payload["complexity_risk"]),
+        failure_cost_risk=int(payload["failure_cost_risk"]),
+        evidence_confidence=float(payload["evidence_confidence"]),
+        known_failure_modes=tuple(str(mode) for mode in payload["known_failure_modes"]),
+        sources=tuple(_build_source(source) for source in payload["sources"]),
+    )
+
+
+def _load_profiles() -> tuple[dict[str, ReliabilityProfile], dict[str, tuple[ReliabilityYearObservation, ...]]]:
+    payload = load_json_data("reliability_profiles.json")
+    if not isinstance(payload, dict):
+        raise ValueError("reliability_profiles.json must contain an object")
+
+    profiles_payload = payload.get("profiles")
+    if not isinstance(profiles_payload, dict):
+        raise ValueError("reliability_profiles.json must contain a profiles object")
+    profiles = {
+        model: _build_profile(profile_payload)
+        for model, profile_payload in profiles_payload.items()
+    }
+
+    year_profiles_payload = payload.get("year_profiles", {})
+    if not isinstance(year_profiles_payload, dict):
+        raise ValueError("reliability_profiles.json year_profiles must be an object")
+    year_profiles = {
+        model: tuple(
+            ReliabilityYearObservation(
+                year=int(observation["year"]),
+                profile=_build_profile(observation["profile"]),
+            )
+            for observation in observations
+        )
+        for model, observations in year_profiles_payload.items()
+    }
+    return profiles, year_profiles
+
+
+RELIABILITY_PROFILES, RELIABILITY_YEAR_PROFILES = _load_profiles()
 
 
 def resolve_reliability_profile(

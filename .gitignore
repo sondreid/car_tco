@@ -5,3 +5,5 @@ output
 *egg*
 .DS_Store
 build
+reports/*.json
+!reports/overrides.json

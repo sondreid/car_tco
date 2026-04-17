@@ -29,7 +29,7 @@ _SUMMARY_COLS = [
     "maintenance_nok",
     "energy_nok",
     "depreciation_nok",
-    "investment_cost_nok",
+    "opportunity_cost_nok",
     "total_cost_nok",
     "cost_per_month_nok",
 ]
@@ -52,7 +52,7 @@ _COL_LABELS = {
     "maintenance_nok": "Maint (NOK)",
     "energy_nok": "Energy (NOK)",
     "depreciation_nok": "Deprec. (NOK)",
-    "investment_cost_nok": "Invest. (NOK)",
+    "opportunity_cost_nok": "Opportunity (NOK)",
     "total_cost_nok": "Total (NOK)",
     "cost_per_month_nok": "NOK/mo",
 }

@@ -1,11 +1,12 @@
-model,reference_price_nok,price_source,price_match_count,reference_year,reference_km,reliability_score,known_repairs_nok,maintenance_nok,energy_nok,depreciation_nok,investment_cost_nok,total_cost_nok,cost_per_month_nok
-Tesla Model Y,264532,manual,0,2021,68901,83.3,0,24928,12150,83354,26743,147175,4088
-Toyota Avensis,0,manual,0,2012,182000,62.7,50000,93785,70380,0,0,164165,4560
-Mitsubishi Outlander PHEV,220000,manual,0,2020,60000,71.0,0,40050,37364,70840,22150,170404,4733
-Toyota RAV4 Hybrid,280000,manual,0,2019,120000,84.9,0,30040,50824,63084,29815,173763,4827
-Peugeot 508 SW 2.0 BlueHDi,139532,manual,0,2015,132500,60.0,0,52500,49500,74301,12286,188587,5239
-Skoda Superb 2.0 TDI 4x4,180000,manual,0,2018,140000,70.1,0,49445,62370,70146,17391,199352,5538
-Mercedes EQC,260000,manual,0,2020,126000,61.0,0,47025,16200,115180,24289,202694,5630
-Mazda CX-5 diesel AWD,179532,manual,0,2016,112200,66.3,0,46850,57420,81885,16631,202786,5633
-Volkswagen Passat GTE,200000,manual,0,2020,90000,63.7,0,52965,66398,84780,18913,223056,6196
-Skoda Kodiaq 2.0 TDI 4x4,269000,manual,0,2018,132700,72.1,0,46148,65340,109322,25721,246531,6848
+model,reference_price_nok,price_source,price_match_count,existing_car,foregone_resale_value_nok,reference_year,reference_model_year,reference_km,reliability_score,reliability_evidence_score,technical_robustness,reliability_confidence,known_repairs_nok,maintenance_nok,energy_nok,depreciation_nok,opportunity_cost_nok,total_cost_nok,cost_per_month_nok
+Toyota RAV4 Hybrid,288950,finn_cached,2,False,0,2018,2018,94950,80.6,95.2,83.8,79.5,0,27786,50824,77814,30005,186429,5179
+Toyota Avensis,0,existing_car,0,True,50000,2012,2012,182000,60.0,92.4,83.2,49.0,20000,59693,70380,0,8400,188473,5235
+Tesla Model Y,324945,finn_cached,9,False,0,2021,2021,62870,82.8,94.26,74.0,70.22,0,26959,12150,125614,31457,196180,5449
+Mitsubishi Outlander PHEV,260000,finn_cached,1,False,0,2020,2020,60000,73.8,85.2,64.2,71.5,0,43508,37364,103259,25004,209135,5809
+Toyota RAV4 Hybrid,372450,finn_cached,4,False,0,2020,2020,73290,84.8,95.6,80.0,81.75,0,29727,50824,100710,38651,219912,6109
+Mazda CX-5 diesel AWD,214266,finn_cached,4,False,0,2016,2016,85700,68.2,86.7,70.2,69.88,0,43474,57420,110514,19081,230489,6402
+Skoda Superb 2.0 TDI 4x4,254716,finn_cached,9,False,0,2018,2018,123500,69.6,94.0,60.0,73.5,0,49636,62370,117564,23512,253082,7030
+Volkswagen Passat GTE,236667,finn_cached,4,False,0,2020,2020,64360,67.4,80.52,51.8,72.95,0,53903,66398,122777,21033,264111,7336
+Mercedes EQC,349000,finn_cached,22,False,0,2020,2020,101750,64.2,82.2,55.6,57.5,0,45950,16200,188059,30596,280805,7800
+Mercedes GLC 300e 4MATIC,437495,finn_cached,17,False,0,2020,2020,77250,81.8,96.34,69.2,83.03,0,41760,35190,176485,41910,295345,8204
+Skoda Kodiaq 2.0 TDI 4x4,352216,finn_cached,9,False,0,2018,2018,128850,70.7,92.82,65.4,76.83,0,47266,65340,168694,32144,313444,8707

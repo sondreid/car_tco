@@ -11,6 +11,9 @@ import unicodedata
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from ..cache_store import load_entries_cache, save_entries_cache
+from ..data.model_assumptions import PRICING_MODEL_PROFILES, PricingModelProfile
+
 
 _SEARCH_URL = "https://www.finn.no/mobility/search/car"
 _GLOBAL_EXCLUDED_TOKENS = (
@@ -64,6 +67,7 @@ class FinnPriceEstimate:
     """Price estimate for one car."""
 
     estimated_price_nok: int | None
+    estimated_km: int | None
     price_source: str
     match_count: int
     comparable_count: int
@@ -72,60 +76,8 @@ class FinnPriceEstimate:
     scraped_at: str = ""
 
 
-@dataclass(frozen=True)
-class _ModelProfile:
-    query: str
-    required_groups: tuple[tuple[str, ...], ...]
-    excluded_tokens: tuple[str, ...] = ()
-
-
-_MODEL_PROFILES: dict[str, _ModelProfile] = {
-    "Mercedes EQC": _ModelProfile(
-        query="mercedes eqc",
-        required_groups=(("eqc",),),
-        excluded_tokens=("eqe", "eqs"),
-    ),
-    "Mazda CX-5 diesel AWD": _ModelProfile(
-        query="mazda cx-5 diesel awd",
-        required_groups=(("cx 5", "cx-5"), ("diesel", "2 2d", "2.2d"), ("awd", "4x4")),
-        excluded_tokens=("petrol", "bensin"),
-    ),
-    "Peugeot 508 SW 2.0 BlueHDi": _ModelProfile(
-        query="peugeot 508 sw bluehdi",
-        required_groups=(("508",), ("sw",), ("bluehdi",)),
-        excluded_tokens=("hybrid", "phev"),
-    ),
-    "Skoda Kodiaq 2.0 TDI 4x4": _ModelProfile(
-        query="skoda kodiaq 2.0 tdi 4x4",
-        required_groups=(("kodiaq",), ("tdi",), ("4x4", "4wd")),
-        excluded_tokens=("tsi", "petrol", "bensin"),
-    ),
-    "Tesla Model Y": _ModelProfile(
-        query="tesla model y",
-        required_groups=(("model y",),),
-        excluded_tokens=("model s", "model 3", "model x"),
-    ),
-    "Toyota RAV4 Hybrid": _ModelProfile(
-        query="toyota rav4 hybrid",
-        required_groups=(("rav4",), ("hybrid",)),
-        excluded_tokens=("plug-in", "plug in", "phev", "ladbar"),
-    ),
-    "Mitsubishi Outlander PHEV": _ModelProfile(
-        query="mitsubishi outlander phev",
-        required_groups=(("outlander",), ("phev", "plug-in", "plug in", "hybrid")),
-        excluded_tokens=("diesel", "di-d"),
-    ),
-    "Volkswagen Passat GTE": _ModelProfile(
-        query="volkswagen passat gte",
-        required_groups=(("passat",), ("gte",)),
-        excluded_tokens=("tdi", "diesel"),
-    ),
-    "Skoda Superb 2.0 TDI 4x4": _ModelProfile(
-        query="skoda superb tdi 4x4",
-        required_groups=(("superb",), ("tdi",), ("4x4", "4wd")),
-        excluded_tokens=("iv",),
-    ),
-}
+_ModelProfile = PricingModelProfile
+_MODEL_PROFILES: dict[str, _ModelProfile] = PRICING_MODEL_PROFILES
 
 
 class FinnPriceEstimator:
@@ -178,6 +130,7 @@ class FinnPriceEstimator:
         typical_price = median_price(comparable_subset)
         return FinnPriceEstimate(
             estimated_price_nok=typical_price,
+            estimated_km=median_km(comparable_subset),
             price_source="finn_typical",
             match_count=len(matches),
             comparable_count=len(comparable_subset),
@@ -200,6 +153,7 @@ class FinnPriceEstimator:
         estimate = reference_price if self.config.fallback_to_reference_price else None
         return FinnPriceEstimate(
             estimated_price_nok=estimate,
+            estimated_km=None,
             price_source="manual",
             match_count=match_count,
             comparable_count=0,
@@ -260,6 +214,8 @@ def estimate_fleet_prices(
                 cache_updates[build_cache_key(car)] = build_cache_entry(car, estimate)
         if estimate.estimated_price_nok is not None:
             car["price_nok"] = float(estimate.estimated_price_nok)
+        if estimate.estimated_km is not None:
+            car["km"] = float(estimate.estimated_km)
         car["price_source"] = estimate.price_source
         car["price_match_count"] = estimate.match_count
         car["price_comparable_count"] = estimate.comparable_count
@@ -275,28 +231,13 @@ def load_price_cache(path: Path) -> dict[str, dict]:
 
     if not path.exists():
         raise FileNotFoundError(f"price cache not found: {path}")
-    payload = json.loads(path.read_text())
-    entries = payload.get("entries")
-    if not isinstance(entries, dict):
-        raise ValueError("price cache missing entries object")
-    return entries
+    return load_entries_cache(path, "price")
 
 
 def save_price_cache(path: Path, entries: dict[str, dict]) -> None:
     """Write scraped price cache."""
 
-    existing: dict[str, dict] = {}
-    if path.exists():
-        try:
-            existing = load_price_cache(path)
-        except Exception:
-            existing = {}
-    merged = dict(existing)
-    merged.update(entries)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"entries": merged}, indent=2, sort_keys=True)
-    )
+    save_entries_cache(path, entries)
 
 
 def effective_model_year(car: dict) -> int:
@@ -320,6 +261,7 @@ def build_cache_entry(car: dict, estimate: FinnPriceEstimate) -> dict:
         "model": car["model"],
         "cache_key": build_cache_key(car),
         "estimated_price_nok": estimate.estimated_price_nok,
+        "estimated_km": estimate.estimated_km,
         "price_source": estimate.price_source,
         "match_count": estimate.match_count,
         "comparable_count": estimate.comparable_count,
@@ -350,6 +292,11 @@ def estimate_price_from_cache(car: dict, cache: dict[str, dict]) -> FinnPriceEst
         raise ValueError(f"cached scraped price for {model} does not match reference year/km")
     return FinnPriceEstimate(
         estimated_price_nok=int(entry["estimated_price_nok"]),
+        estimated_km=(
+            int(entry["estimated_km"])
+            if entry.get("estimated_km") is not None
+            else None
+        ),
         price_source="finn_cached",
         match_count=int(entry.get("match_count", 0)),
         comparable_count=int(entry.get("comparable_count", 0)),
@@ -486,6 +433,18 @@ def median_price(listings: list[FinnListing]) -> int:
     if len(prices) % 2:
         return prices[mid]
     return round((prices[mid - 1] + prices[mid]) / 2)
+
+
+def median_km(listings: list[FinnListing]) -> int | None:
+    """Return median km from listing set."""
+
+    kms = sorted(item.km for item in listings if item.km is not None)
+    if not kms:
+        return None
+    mid = len(kms) // 2
+    if len(kms) % 2:
+        return kms[mid]
+    return round((kms[mid - 1] + kms[mid]) / 2)
 
 
 def build_generic_profile(model: str) -> _ModelProfile:

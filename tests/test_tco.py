@@ -1,9 +1,14 @@
 """Integration-level TCO tests."""
 
+from __future__ import annotations
+
+import json
+
 from car_reliability.assumptions import Assumptions
 from car_reliability.cost.tco import compute_tco
-from car_reliability.pipeline import run
+from car_reliability.pipeline import RunMode, run
 from car_reliability.pricing import FinnPriceEstimator, PriceEstimatorConfig
+from car_reliability.pricing.finn import FinnPriceEstimate
 
 
 _RAV4 = {
@@ -18,14 +23,43 @@ _RAV4 = {
 }
 
 
+class StubEstimator(FinnPriceEstimator):
+    def __init__(
+        self,
+        prices: dict[str, int] | None = None,
+        kms: dict[str, int] | None = None,
+    ) -> None:
+        super().__init__(config=PriceEstimatorConfig())
+        self._prices = prices or {}
+        self._kms = kms or {}
+
+    def estimate_price(self, car: dict) -> FinnPriceEstimate:
+        estimate = self._prices.get(car["model"], int(float(car["price_nok"])))
+        km = self._kms.get(car["model"])
+        return FinnPriceEstimate(estimate, km, "finn_typical", 3, 3, False, "stub")
+
+
+def _load_entries(path) -> dict[str, dict]:
+    return json.loads(path.read_text())["entries"]
+
+
 def test_tco_keys():
     result = compute_tco(_RAV4)
     expected_keys = {
-        "model", "reliability_score", "maintenance_nok", "energy_nok",
-        "depreciation_nok", "investment_cost_nok", "resale_nok",
-        "total_cost_nok", "cost_per_month_nok", "scheduled_maintenance_nok",
-        "failure_risk_cost_nok", "reliability_evidence_score",
-        "technical_robustness", "reliability_confidence",
+        "model",
+        "reliability_score",
+        "maintenance_nok",
+        "energy_nok",
+        "depreciation_nok",
+        "opportunity_cost_nok",
+        "resale_nok",
+        "total_cost_nok",
+        "cost_per_month_nok",
+        "scheduled_maintenance_nok",
+        "failure_risk_cost_nok",
+        "reliability_evidence_score",
+        "technical_robustness",
+        "reliability_confidence",
     }
     assert expected_keys.issubset(result.keys())
 
@@ -34,11 +68,27 @@ def test_total_equals_components():
     r = compute_tco(_RAV4)
     expected_total = (
         r["depreciation_nok"]
-        + r["investment_cost_nok"]
+        + r["opportunity_cost_nok"]
         + r["energy_nok"]
         + r["maintenance_nok"]
     )
     assert r["total_cost_nok"] == expected_total
+
+
+def test_known_repairs_add_financing_cost():
+    assumptions = Assumptions()
+    base = compute_tco(_RAV4, assumptions)
+    with_repairs = compute_tco({**_RAV4, "known_repairs_nok": 10_000}, assumptions)
+    expected_extra = round(
+        10_000 + 10_000 * assumptions.capital_rate * assumptions.horizon_years
+    )
+
+    assert with_repairs["foregone_resale_value_nok"] == 0
+    assert with_repairs["opportunity_cost_nok"] == (
+        base["opportunity_cost_nok"]
+        + round(10_000 * assumptions.capital_rate * assumptions.horizon_years)
+    )
+    assert with_repairs["total_cost_nok"] == base["total_cost_nok"] + expected_extra
 
 
 def test_higher_price_increases_total():
@@ -47,7 +97,7 @@ def test_higher_price_increases_total():
     assert expensive["total_cost_nok"] > cheap["total_cost_nok"]
 
 
-def test_price_override_in_pipeline(tmp_path):
+def test_price_override_in_default_pipeline(tmp_path):
     df = run(
         price_overrides={"Toyota RAV4 Hybrid": 200_000},
         output_dir=tmp_path,
@@ -59,352 +109,138 @@ def test_price_override_in_pipeline(tmp_path):
 
 def test_pipeline_returns_sorted(tmp_path):
     df = run(output_dir=tmp_path, verbose=False)
-    costs = df["total_cost_nok"].tolist()
-    assert costs == sorted(costs)
+    assert df["total_cost_nok"].tolist() == sorted(df["total_cost_nok"].tolist())
 
 
 def test_pipeline_writes_csvs(tmp_path):
     run(output_dir=tmp_path, output_prefix="test", verbose=False)
     assert (tmp_path / "test_full.csv").exists()
     assert (tmp_path / "test_summary.csv").exists()
+    assert (tmp_path / "overrides.json").exists()
+    assert (tmp_path / "reliability_cache.json").exists()
+    assert (tmp_path / "results_cache.json").exists()
+
+
+def test_scrape_prices_updates_cache_only(tmp_path):
+    run(
+        mode=RunMode.SCRAPE_PRICES,
+        price_estimator=StubEstimator({"Toyota RAV4 Hybrid": 255_000}),
+        output_dir=tmp_path,
+        verbose=False,
+    )
+    assert (tmp_path / "finn_price_cache.json").exists()
+    assert not (tmp_path / "tco_full.csv").exists()
+
+
+def test_rerun_model_uses_scraped_prices(tmp_path):
+    df = run(
+        mode=RunMode.RERUN_MODEL,
+        price_estimator=StubEstimator(
+            {"Toyota RAV4 Hybrid": 255_000},
+            {"Toyota RAV4 Hybrid": 118_000},
+        ),
+        output_dir=tmp_path,
+        verbose=False,
+    )
+    rav4_row = df[df["model"] == "Toyota RAV4 Hybrid"].iloc[0]
+    assert rav4_row["reference_price_nok"] == 255_000
+    assert rav4_row["reference_km"] == 118_000
+    assert rav4_row["price_source"] == "finn_typical"
+    assert (tmp_path / "finn_price_cache.json").exists()
+
+
+def test_use_cached_scraped_price_reuses_price_cache(tmp_path):
+    run(
+        mode=RunMode.RERUN_MODEL,
+        price_estimator=StubEstimator(
+            {"Toyota RAV4 Hybrid": 255_000},
+            {"Toyota RAV4 Hybrid": 118_000},
+        ),
+        output_dir=tmp_path,
+        verbose=False,
+    )
+    df = run(
+        mode=RunMode.USE_CACHED_SCRAPED_PRICE,
+        output_dir=tmp_path,
+        verbose=False,
+    )
+    rav4_row = df[df["model"] == "Toyota RAV4 Hybrid"].iloc[0]
+    assert rav4_row["reference_price_nok"] == 255_000
+    assert rav4_row["reference_km"] == 118_000
+    assert rav4_row["price_source"] == "finn_cached"
+
+
+def test_use_cached_reliability_uses_reliability_cache(tmp_path):
+    run(output_dir=tmp_path, verbose=False)
+    cache_path = tmp_path / "reliability_cache.json"
+    cache = _load_entries(cache_path)
+    cache["Toyota RAV4 Hybrid::2020::120000"]["reliability"]["reliability_score"] = 61.0
+    cache_path.write_text(json.dumps({"entries": cache}, indent=2, sort_keys=True))
+
+    df = run(
+        mode=RunMode.USE_CACHED_RELIABILITY,
+        output_dir=tmp_path,
+        verbose=False,
+    )
+    rav4_row = df[
+        (df["model"] == "Toyota RAV4 Hybrid") & (df["reference_model_year"] == 2020)
+    ].iloc[0]
+    assert rav4_row["reliability_score"] == 61.0
+
+
+def test_use_cached_reads_results_cache(tmp_path):
+    run(output_dir=tmp_path, verbose=False)
+    cache_path = tmp_path / "results_cache.json"
+    cache = _load_entries(cache_path)
+    cache["Toyota RAV4 Hybrid::2020::120000"]["result"]["total_cost_nok"] = 123
+    cache_path.write_text(json.dumps({"entries": cache}, indent=2, sort_keys=True))
+
+    df = run(mode=RunMode.USE_CACHED, output_dir=tmp_path, verbose=False)
+    rav4_row = df[
+        (df["model"] == "Toyota RAV4 Hybrid") & (df["reference_model_year"] == 2020)
+    ].iloc[0]
+    assert rav4_row["total_cost_nok"] == 123
+
+
+def test_overrides_file_can_force_exact_resale(tmp_path):
+    run(output_dir=tmp_path, verbose=False)
+    overrides_path = tmp_path / "overrides.json"
+    payload = json.loads(overrides_path.read_text())
+    payload["fleet_overrides"]["Mitsubishi Outlander PHEV::2020::60000"]["resale_nok"] = 150_000
+    overrides_path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+
+    df = run(output_dir=tmp_path, verbose=False)
+    outlander = df[df["model"] == "Mitsubishi Outlander PHEV"].iloc[0]
+    assert outlander["resale_nok"] == 150_000
+
+
+def test_overrides_win_over_cached_results(tmp_path):
+    run(output_dir=tmp_path, verbose=False)
+    overrides_path = tmp_path / "overrides.json"
+    payload = json.loads(overrides_path.read_text())
+    payload["fleet_overrides"]["Toyota RAV4 Hybrid::2020::120000"]["resale_nok"] = 999
+    overrides_path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+
+    df = run(mode=RunMode.USE_CACHED, output_dir=tmp_path, verbose=False)
+    rav4_row = df[
+        (df["model"] == "Toyota RAV4 Hybrid") & (df["reference_model_year"] == 2020)
+    ].iloc[0]
+    assert rav4_row["resale_nok"] == 999
 
 
 def test_no_phev_blend_uses_catalogue():
-    """With phev_dynamic_consumption=False, Outlander uses raw catalogue value."""
     a_blend = Assumptions(phev_dynamic_consumption=True)
     a_raw = Assumptions(phev_dynamic_consumption=False)
     outlander = {
         "model": "Mitsubishi Outlander PHEV",
-        "price_nok": 220_000, "year": 2020, "km": 60_000,
+        "price_nok": 220_000,
+        "year": 2020,
+        "km": 60_000,
     }
-    e_blend = compute_tco(outlander, a_blend)["energy_nok"]
-    e_raw = compute_tco(outlander, a_raw)["energy_nok"]
-    # Raw (ICE-only) should be more expensive than blended
-    assert e_raw > e_blend
+    assert compute_tco(outlander, a_raw)["energy_nok"] > compute_tco(outlander, a_blend)["energy_nok"]
 
 
-def test_scraped_price_in_pipeline(tmp_path):
-    class StubEstimator(FinnPriceEstimator):
-        def estimate_price(self, car: dict):
-            from car_reliability.pricing.finn import FinnPriceEstimate
-
-            if car["model"] == "Toyota RAV4 Hybrid":
-                return FinnPriceEstimate(255_000, "finn_typical", 3, 3, False, "stub")
-            return FinnPriceEstimate(int(car["price_nok"]), "manual", 0, 0, True, "stub")
-
-    df = run(
-        price_estimation=True,
-        price_estimator=StubEstimator(config=PriceEstimatorConfig()),
-        output_dir=tmp_path,
-        verbose=False,
-    )
-    rav4_row = df[df["model"] == "Toyota RAV4 Hybrid"].iloc[0]
-    assert rav4_row["reference_price_nok"] == 255_000
-    assert rav4_row["price_source"] == "finn_typical"
-
-
-def test_price_override_is_ignored_when_scraping(tmp_path):
-    class StubEstimator(FinnPriceEstimator):
-        def estimate_price(self, car: dict):
-            from car_reliability.pricing.finn import FinnPriceEstimate
-
-            if car["model"] == "Toyota RAV4 Hybrid":
-                return FinnPriceEstimate(255_000, "finn_typical", 3, 3, False, "stub")
-            return FinnPriceEstimate(int(car["price_nok"]), "manual", 0, 0, True, "stub")
-
-    df = run(
-        price_estimation=True,
-        price_estimator=StubEstimator(config=PriceEstimatorConfig()),
-        price_overrides={"Toyota RAV4 Hybrid": 200_000},
-        output_dir=tmp_path,
-        verbose=False,
-    )
-    rav4_row = df[df["model"] == "Toyota RAV4 Hybrid"].iloc[0]
-    assert rav4_row["reference_price_nok"] == 255_000
-    assert rav4_row["price_source"] == "finn_typical"
-
-
-def test_cached_scraped_price_in_pipeline(tmp_path):
-    cache_file = tmp_path / "finn_price_cache.json"
-    cache_file.write_text(
-        """{
-  "entries": {
-    "Toyota RAV4 Hybrid::2018::120000": {
-      "model": "Toyota RAV4 Hybrid",
-      "cache_key": "Toyota RAV4 Hybrid::2018::120000",
-      "estimated_price_nok": 250000,
-      "price_source": "finn_typical",
-      "match_count": 4,
-      "comparable_count": 4,
-      "price_note": "cached",
-      "reference_year": 2018,
-      "reference_model_year": 2018,
-      "reference_km": 120000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Toyota RAV4 Hybrid::2020::120000": {
-      "model": "Toyota RAV4 Hybrid",
-      "cache_key": "Toyota RAV4 Hybrid::2020::120000",
-      "estimated_price_nok": 250000,
-      "price_source": "finn_typical",
-      "match_count": 4,
-      "comparable_count": 4,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_model_year": 2020,
-      "reference_km": 120000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Toyota Avensis": {
-      "model": "Toyota Avensis",
-      "estimated_price_nok": 0,
-      "price_source": "existing_car",
-      "match_count": 0,
-      "comparable_count": 0,
-      "price_note": "excluded",
-      "reference_year": 2012,
-      "reference_km": 182000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Mitsubishi Outlander PHEV": {
-      "model": "Mitsubishi Outlander PHEV",
-      "estimated_price_nok": 220000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_km": 60000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Volkswagen Passat GTE": {
-      "model": "Volkswagen Passat GTE",
-      "estimated_price_nok": 200000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_km": 90000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Skoda Kodiaq 2.0 TDI 4x4": {
-      "model": "Skoda Kodiaq 2.0 TDI 4x4",
-      "estimated_price_nok": 269000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2018,
-      "reference_km": 132700,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Mazda CX-5 diesel AWD": {
-      "model": "Mazda CX-5 diesel AWD",
-      "estimated_price_nok": 179532,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2016,
-      "reference_km": 112200,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Peugeot 508 SW 2.0 BlueHDi": {
-      "model": "Peugeot 508 SW 2.0 BlueHDi",
-      "estimated_price_nok": 139532,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2015,
-      "reference_km": 132500,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Tesla Model Y": {
-      "model": "Tesla Model Y",
-      "estimated_price_nok": 264532,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2021,
-      "reference_km": 68901,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Mercedes EQC": {
-      "model": "Mercedes EQC",
-      "estimated_price_nok": 260000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_km": 126000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Skoda Superb 2.0 TDI 4x4": {
-      "model": "Skoda Superb 2.0 TDI 4x4",
-      "estimated_price_nok": 180000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2018,
-      "reference_km": 140000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    }
-  }
-}"""
-    )
-    df = run(
-        price_estimation=True,
-        use_cached_scraped_prices=True,
-        price_cache_file=cache_file,
-        output_dir=tmp_path,
-        verbose=False,
-    )
-    rav4_row = df[df["model"] == "Toyota RAV4 Hybrid"].iloc[0]
-    assert rav4_row["reference_price_nok"] == 250_000
-    assert rav4_row["price_source"] == "finn_cached"
-
-
-def test_price_override_is_ignored_with_cached_scraped_prices(tmp_path):
-    cache_file = tmp_path / "finn_price_cache.json"
-    cache_file.write_text(
-        """{
-  "entries": {
-    "Toyota RAV4 Hybrid::2018::120000": {
-      "model": "Toyota RAV4 Hybrid",
-      "cache_key": "Toyota RAV4 Hybrid::2018::120000",
-      "estimated_price_nok": 250000,
-      "price_source": "finn_typical",
-      "match_count": 4,
-      "comparable_count": 4,
-      "price_note": "cached",
-      "reference_year": 2018,
-      "reference_model_year": 2018,
-      "reference_km": 120000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Toyota RAV4 Hybrid::2020::120000": {
-      "model": "Toyota RAV4 Hybrid",
-      "cache_key": "Toyota RAV4 Hybrid::2020::120000",
-      "estimated_price_nok": 250000,
-      "price_source": "finn_typical",
-      "match_count": 4,
-      "comparable_count": 4,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_model_year": 2020,
-      "reference_km": 120000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Mitsubishi Outlander PHEV": {
-      "model": "Mitsubishi Outlander PHEV",
-      "estimated_price_nok": 220000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_km": 60000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Volkswagen Passat GTE": {
-      "model": "Volkswagen Passat GTE",
-      "estimated_price_nok": 200000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_km": 90000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Skoda Kodiaq 2.0 TDI 4x4": {
-      "model": "Skoda Kodiaq 2.0 TDI 4x4",
-      "estimated_price_nok": 269000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2018,
-      "reference_km": 132700,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Mazda CX-5 diesel AWD": {
-      "model": "Mazda CX-5 diesel AWD",
-      "estimated_price_nok": 179532,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2016,
-      "reference_km": 112200,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Peugeot 508 SW 2.0 BlueHDi": {
-      "model": "Peugeot 508 SW 2.0 BlueHDi",
-      "estimated_price_nok": 139532,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2015,
-      "reference_km": 132500,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Tesla Model Y": {
-      "model": "Tesla Model Y",
-      "estimated_price_nok": 264532,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2021,
-      "reference_km": 68901,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Mercedes EQC": {
-      "model": "Mercedes EQC",
-      "estimated_price_nok": 260000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2020,
-      "reference_km": 126000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    },
-    "Skoda Superb 2.0 TDI 4x4": {
-      "model": "Skoda Superb 2.0 TDI 4x4",
-      "estimated_price_nok": 180000,
-      "price_source": "finn_typical",
-      "match_count": 2,
-      "comparable_count": 2,
-      "price_note": "cached",
-      "reference_year": 2018,
-      "reference_km": 140000,
-      "scraped_at": "2026-04-13T00:00:00+00:00"
-    }
-  }
-}"""
-    )
-    df = run(
-        price_estimation=True,
-        use_cached_scraped_prices=True,
-        price_cache_file=cache_file,
-        price_overrides={"Toyota RAV4 Hybrid": 200_000},
-        output_dir=tmp_path,
-        verbose=False,
-    )
-    rav4_row = df[df["model"] == "Toyota RAV4 Hybrid"].iloc[0]
-    assert rav4_row["reference_price_nok"] == 250_000
-    assert rav4_row["price_source"] == "finn_cached"
-
-
-def test_existing_car_known_repairs_and_no_investment():
+def test_existing_car_known_repairs_and_opportunity_cost():
     avensis = compute_tco(
         {
             "model": "Toyota Avensis",
@@ -417,8 +253,8 @@ def test_existing_car_known_repairs_and_no_investment():
         }
     )
     assert avensis["known_repairs_nok"] == 50_000
-    assert avensis["investment_cost_nok"] == 0
     assert avensis["foregone_resale_value_nok"] == 20_000
+    assert avensis["opportunity_cost_nok"] == 8_400
     assert avensis["maintenance_nok"] == (
         avensis["scheduled_maintenance_nok"]
         + avensis["failure_risk_cost_nok"]
@@ -428,7 +264,7 @@ def test_existing_car_known_repairs_and_no_investment():
         avensis["maintenance_nok"]
         + avensis["energy_nok"]
         + avensis["depreciation_nok"]
-        + avensis["investment_cost_nok"]
+        + avensis["opportunity_cost_nok"]
         + avensis["foregone_resale_value_nok"]
     )
 
@@ -437,17 +273,22 @@ def test_new_models_compute_tco():
     for car in (
         {"model": "Skoda Kodiaq 2.0 TDI 4x4", "price_nok": 269_000, "year": 2018, "km": 132_700},
         {"model": "Mazda CX-5 diesel AWD", "price_nok": 179_532, "year": 2016, "km": 112_200},
-        {"model": "Peugeot 508 SW 2.0 BlueHDi", "price_nok": 139_532, "year": 2015, "km": 132_500},
+        {"model": "Mercedes GLC 300e 4MATIC", "price_nok": 435_000, "year": 2020, "km": 86_772},
         {"model": "Tesla Model Y", "price_nok": 264_532, "year": 2021, "km": 68_901},
         {"model": "Mercedes EQC", "price_nok": 260_000, "year": 2020, "km": 126_000},
     ):
-        result = compute_tco(car)
-        assert result["total_cost_nok"] > 0
+        assert compute_tco(car)["total_cost_nok"] > 0
 
 
 def test_tco_exposes_model_year_override():
     result = compute_tco(
-        {"model": "Toyota RAV4 Hybrid", "price_nok": 240_000, "year": 2018, "model_year": 2018, "km": 120_000}
+        {
+            "model": "Toyota RAV4 Hybrid",
+            "price_nok": 240_000,
+            "year": 2018,
+            "model_year": 2018,
+            "km": 120_000,
+        }
     )
     assert result["reference_year"] == 2018
     assert result["reference_model_year"] == 2018

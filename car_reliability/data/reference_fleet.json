@@ -1,0 +1,116 @@
+[
+  {
+    "current_resale_value_nok": 50000,
+    "description": "existing car, assumed 2012 petrol, known repairs required",
+    "exclude_from_price_estimation": true,
+    "existing_car": true,
+    "km": 182000,
+    "known_repairs_nok": 20000,
+    "model": "Toyota Avensis",
+    "model_year": 2012,
+    "name": "Toyota Avensis existing car",
+    "price_nok": 0,
+    "url": "",
+    "year": 2012
+  },
+  {
+    "description": "manual reference older-generation hybrid for year comparison",
+    "km": 120000,
+    "model": "Toyota RAV4 Hybrid",
+    "model_year": 2018,
+    "name": "Toyota RAV4 Hybrid 2018 reference",
+    "price_nok": 240000,
+    "url": "",
+    "year": 2018
+  },
+  {
+    "description": "manual reference newer-generation hybrid for year comparison",
+    "km": 120000,
+    "model": "Toyota RAV4 Hybrid",
+    "model_year": 2020,
+    "name": "Toyota RAV4 Hybrid 2020 reference",
+    "price_nok": 300000,
+    "url": "",
+    "year": 2020
+  },
+  {
+    "description": "manual reference with 50% full-charge 60 km trip assumption",
+    "km": 60000,
+    "model": "Mitsubishi Outlander PHEV",
+    "model_year": 2020,
+    "name": "Mitsubishi Outlander PHEV reference",
+    "price_nok": 220000,
+    "url": "",
+    "year": 2020
+  },
+  {
+    "description": "manual reference plug-in hybrid estate",
+    "km": 90000,
+    "model": "Volkswagen Passat GTE",
+    "model_year": 2020,
+    "name": "Volkswagen Passat GTE reference",
+    "price_nok": 200000,
+    "url": "",
+    "year": 2020
+  },
+  {
+    "description": "FINN reference within current price/km comparison window",
+    "km": 132700,
+    "model": "Skoda Kodiaq 2.0 TDI 4x4",
+    "model_year": 2018,
+    "name": "Skoda Kodiaq 2.0 TDI 4x4 reference",
+    "price_nok": 269000,
+    "url": "https://www.finn.no/mobility/item/459341833",
+    "year": 2018
+  },
+  {
+    "description": "FINN reference within current price/km comparison window",
+    "km": 112200,
+    "model": "Mazda CX-5 diesel AWD",
+    "model_year": 2016,
+    "name": "Mazda CX-5 diesel AWD reference",
+    "price_nok": 179532,
+    "url": "https://www.finn.no/mobility/item/448852607",
+    "year": 2016
+  },
+  {
+    "description": "FINN reference plug-in hybrid SUV",
+    "km": 86772,
+    "model": "Mercedes GLC 300e 4MATIC",
+    "model_year": 2020,
+    "name": "Mercedes GLC 300e 4MATIC reference",
+    "price_nok": 435000,
+    "url": "https://www.finn.no/mobility/item/458968996",
+    "year": 2020
+  },
+  {
+    "description": "FINN reference within current price/km comparison window",
+    "km": 68901,
+    "model": "Tesla Model Y",
+    "model_year": 2021,
+    "name": "Tesla Model Y reference",
+    "price_nok": 264532,
+    "url": "https://www.finn.no/mobility/item/459624653",
+    "year": 2021
+  },
+  {
+    "description": "FINN reference within current price/km comparison window",
+    "km": 126000,
+    "model": "Mercedes EQC",
+    "model_year": 2020,
+    "name": "Mercedes EQC reference",
+    "price_nok": 260000,
+    "url": "https://www.finn.no/mobility/item/435035902",
+    "year": 2020
+  },
+  {
+    "description": "manual reference conventional diesel",
+    "km": 140000,
+    "model": "Skoda Superb 2.0 TDI 4x4",
+    "model_year": 2018,
+    "name": "Skoda Superb 2.0 TDI 4x4 reference",
+    "price_nok": 180000,
+    "url": "",
+    "year": 2018
+  }
+]

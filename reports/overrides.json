@@ -1,0 +1,136 @@
+{
+  "fleet_overrides": {
+    "Mazda CX-5 diesel AWD::2016::112200": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Mercedes EQC::2020::126000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Mercedes GLC 300e 4MATIC::2020::86772": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Mitsubishi Outlander PHEV::2020::60000": {
+      "current_resale_value_nok": null,
+      "km": 60000,
+      "known_repairs_nok": null,
+      "model_year": 2020,
+      "price_nok": 260000,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Skoda Kodiaq 2.0 TDI 4x4::2018::132700": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Skoda Superb 2.0 TDI 4x4::2018::140000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Tesla Model Y::2021::68901": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Toyota Avensis::2012::182000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Toyota RAV4 Hybrid::2018::120000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Toyota RAV4 Hybrid::2020::120000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Volkswagen Passat GTE::2020::90000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    }
+  }
+}

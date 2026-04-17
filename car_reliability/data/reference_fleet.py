@@ -1,143 +1,33 @@
 """
-Reference fleet builder.
+Reference fleet builder backed by checked-in JSON.
 
 ``build_reference_fleet`` returns a list of car dicts representing the cars
-that will be analysed.  Each entry has the shape expected by the pipeline:
-
-    {
-        "model": str,          # must match a key in CAR_CATALOGUE
-        "name": str,
-        "description": str,
-        "price_nok": float,
-        "year": int,
-        "model_year": int,     # optional; defaults to year when omitted
-        "km": float,
-        "url": str,
-    }
-
-Adding a new car only requires appending an entry here (or passing overrides
-at runtime via ``extra_cars``).  Prices can be patched at runtime via
-``price_overrides`` so CLI/notebooks don't have to touch this file.
-
-This module supports two ways of creating a car instance:
-1. ``build_car("Model Name")`` → copy the repo's default reference instance
-2. ``build_car("Model Name", price_nok=..., year=..., model_year=..., km=...)`` → copy the
-   default reference instance and override the specific fields
+that will be analysed.
 """
 
 from __future__ import annotations
 
 import copy
 
+from ._json import load_json_data
 
-_DEFAULT_FLEET: list[dict] = [
-    {
-        "model": "Toyota Avensis",
-        "name": "Toyota Avensis existing car",
-        "description": "existing car, assumed 2012 petrol, known repairs required",
-        "existing_car": True,
-        "price_nok": 0,
-        "current_resale_value_nok": 20_000,
-        "year": 2012,
-        "km": 182_000,
-        "known_repairs_nok": 60_000,
-        "exclude_from_price_estimation": True,
-        "url": "",
-    },
-    {
-        "model": "Toyota RAV4 Hybrid",
-        "name": "Toyota RAV4 Hybrid 2018 reference",
-        "description": "manual reference older-generation hybrid for year comparison",
-        "price_nok": 240_000,
-        "year": 2018,
-        "model_year": 2018,
-        "km": 120_000,
-        "url": "",
-    },
-    {
-        "model": "Toyota RAV4 Hybrid",
-        "name": "Toyota RAV4 Hybrid 2020 reference",
-        "description": "manual reference newer-generation hybrid for year comparison",
-        "price_nok": 300_000,
-        "year": 2020,
-        "model_year": 2020,
-        "km": 120_000,
-        "url": "",
-    },
-    {
-        "model": "Mitsubishi Outlander PHEV",
-        "name": "Mitsubishi Outlander PHEV reference",
-        "description": "manual reference with 50% full-charge 60 km trip assumption",
-        "price_nok": 220_000,
-        "year": 2020,
-        "km": 60_000,
-        "url": "",
-    },
-    {
-        "model": "Volkswagen Passat GTE",
-        "name": "Volkswagen Passat GTE reference",
-        "description": "manual reference plug-in hybrid estate",
-        "price_nok": 200_000,
-        "year": 2020,
-        "km": 90_000,
-        "url": "",
-    },
-    {
-        "model": "Skoda Kodiaq 2.0 TDI 4x4",
-        "name": "Skoda Kodiaq 2.0 TDI 4x4 reference",
-        "description": "FINN reference within current price/km comparison window",
-        "price_nok": 269_000,
-        "year": 2018,
-        "km": 132_700,
-        "url": "https://www.finn.no/mobility/item/459341833",
-    },
-    {
-        "model": "Mazda CX-5 diesel AWD",
-        "name": "Mazda CX-5 diesel AWD reference",
-        "description": "FINN reference within current price/km comparison window",
-        "price_nok": 179_532,
-        "year": 2016,
-        "km": 112_200,
-        "url": "https://www.finn.no/mobility/item/448852607",
-    },
-    {
-        "model": "Peugeot 508 SW 2.0 BlueHDi",
-        "name": "Peugeot 508 SW 2.0 BlueHDi reference",
-        "description": "FINN reference within current price/km comparison window",
-        "price_nok": 139_532,
-        "year": 2015,
-        "km": 132_500,
-        "url": "https://www.finn.no/mobility/item/449340768",
-    },
-    {
-        "model": "Tesla Model Y",
-        "name": "Tesla Model Y reference",
-        "description": "FINN reference within current price/km comparison window",
-        "price_nok": 264_532,
-        "year": 2021,
-        "km": 68_901,
-        "url": "https://www.finn.no/mobility/item/459624653",
-    },
-    {
-        "model": "Mercedes EQC",
-        "name": "Mercedes EQC reference",
-        "description": "FINN reference within current price/km comparison window",
-        "price_nok": 260_000,
-        "year": 2020,
-        "km": 126_000,
-        "url": "https://www.finn.no/mobility/item/435035902",
-    },
-    {
-        "model": "Skoda Superb 2.0 TDI 4x4",
-        "name": "Skoda Superb 2.0 TDI 4x4 reference",
-        "description": "manual reference conventional diesel",
-        "price_nok": 180_000,
-        "year": 2018,
-        "km": 140_000,
-        "url": "",
-    },
-]
 
+def _load_default_fleet() -> list[dict]:
+    payload = load_json_data("reference_fleet.json")
+    if not isinstance(payload, list):
+        raise ValueError("reference_fleet.json must contain a list of car dicts")
+    fleet: list[dict] = []
+    for car in payload:
+        if not isinstance(car, dict):
+            raise ValueError("reference_fleet.json entries must be objects")
+        normalized = copy.deepcopy(car)
+        if "model_year" not in normalized:
+            normalized["model_year"] = int(normalized["year"])
+        fleet.append(normalized)
+    return fleet
+
+
+_DEFAULT_FLEET: list[dict] = _load_default_fleet()
 _DEFAULT_BY_MODEL: dict[str, dict] = {car["model"]: car for car in _DEFAULT_FLEET}
 
 
@@ -147,12 +37,7 @@ def build_car(model: str, **overrides) -> dict:
 
     Two modes are supported:
     - model only: copy the repo's default reference instance for that model
-    - model + overrides: copy the default instance, then patch fields such as
-      ``price_nok``, ``year``, ``model_year``, ``km``, ``known_repairs_nok``,
-      ``current_resale_value_nok`` or ``url``
-
-    If the model has no default reference instance, the caller must supply at
-    least ``price_nok``, ``year`` and ``km`` in overrides.
+    - model + overrides: copy the default instance, then patch specific fields
     """
     if model in _DEFAULT_BY_MODEL:
         car = copy.deepcopy(_DEFAULT_BY_MODEL[model])
@@ -177,18 +62,7 @@ def build_reference_fleet(
     price_overrides: dict[str, float] | None = None,
     extra_cars: list[dict] | None = None,
 ) -> list[dict]:
-    """
-    Return the reference fleet as a list of car dicts.
-
-    Parameters
-    ----------
-    price_overrides:
-        Map of {model_name: new_price_nok}.  Useful for updating a single
-        car's purchase price without touching source code.
-    extra_cars:
-        Additional car dicts appended after the default fleet.  Must contain
-        at least ``model``, ``price_nok``, ``year``, ``km``.
-    """
+    """Return the reference fleet as a list of car dicts."""
     fleet = copy.deepcopy(_DEFAULT_FLEET)
 
     if price_overrides:
@@ -197,7 +71,7 @@ def build_reference_fleet(
                 car["price_nok"] = float(price_overrides[car["model"]])
 
     if extra_cars:
-        fleet.extend(extra_cars)
+        fleet.extend(copy.deepcopy(extra_cars))
 
     for car in fleet:
         if "model_year" not in car:

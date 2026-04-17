@@ -26,23 +26,24 @@ pip install -e ".[dev]"
 ### CLI
 
 ```bash
-# Default run — writes reports/tco_full.csv and reports/tco_summary.csv
+# Default CLI run — refresh FINN prices, rerun the model, write CSVs and caches
 car-reliability
 
-# Adjust energy prices and driving pattern
-car-reliability --petrol 25.0 --annual-km 20000 --years 4
-
-# Override purchase prices
-car-reliability --price "Toyota RAV4 Hybrid=260000" --price "Volkswagen Passat GTE=190000"
-
-# Replace reference prices with a typical comparable-market price from FINN
+# Refresh only the FINN price/km cache
 car-reliability --scrape-prices
 
-# Reuse previously downloaded FINN prices from the local cache only
-car-reliability --use-cached-scraped-prices
+# Reuse cached FINN prices and rerun reliability + TCO
+car-reliability --use-cached-scraped-price
 
-# Tighten or loosen the FINN matching window for live scraping
-car-reliability --scrape-prices --year-tolerance 1 --km-tolerance 20000 --min-matches 3
+# Reuse cached reliability outputs and rerun cost/reporting layers
+car-reliability --use-cached-reliability
+
+# Reuse the full cached model output without recomputing
+car-reliability --use-cached
+
+# Manual-price Python-style default also exists in the library API
+# and still supports price overrides for scenario work
+car-reliability --petrol 25.0 --annual-km 20000 --years 4
 
 # Change PHEV charge assumption (pessimistic: 25% of trips start charged)
 car-reliability --charge-share 0.25
@@ -60,12 +61,12 @@ car-reliability --no-output
 ### Python API
 
 ```python
-from car_reliability.pipeline import run
+from car_reliability.pipeline import RunMode, run
 from car_reliability.assumptions import Assumptions
 from car_reliability.data import build_car
 from car_reliability.pricing import PriceEstimatorConfig
 
-# Default scenario
+# Default Python API scenario uses checked-in reference prices
 df = run()
 
 # Custom scenario
@@ -83,8 +84,9 @@ df = run(
     output_prefix="pessimistic",
 )
 
+# Refresh FINN prices and rerun the whole model
 df = run(
-    price_estimation=True,
+    mode=RunMode.RERUN_MODEL,
     price_estimator_config=PriceEstimatorConfig(
         year_tolerance=1,
         km_tolerance=20_000,
@@ -92,9 +94,9 @@ df = run(
     ),
 )
 
+# Reuse cached FINN prices
 df = run(
-    price_estimation=True,
-    use_cached_scraped_prices=True,
+    mode=RunMode.USE_CACHED_SCRAPED_PRICE,
 )
 
 # Existing car can be represented with no purchase price and known repairs
@@ -135,19 +137,27 @@ car_reliability/
 ├── pipeline.py           ← High-level run() entry point
 ├── cli.py                ← argparse CLI (car-reliability command)
 ├── __main__.py           ← python -m car_reliability support
+├── cache_store.py        ← Shared JSON cache reader/writer
+├── overrides.py          ← Manual per-car override loading and precedence
 ├── data/
-│   ├── catalogue.py      ← Per-model TCO data (scheduled maintenance, residuals, consumption)
-│   ├── reliability.py    ← Source-backed reliability inputs and links
-│   └── reference_fleet.py← Default fleet + price_overrides / extra_cars
+│   ├── catalogue.json            ← Checked-in model maintenance/residual/consumption data
+│   ├── catalogue.py              ← JSON loader for catalogue data
+│   ├── model_assumptions.json    ← Checked-in FINN pricing/search assumptions
+│   ├── model_assumptions.py      ← JSON loader for pricing model profiles
+│   ├── reference_fleet.json      ← Checked-in default comparison fleet
+│   ├── reference_fleet.py        ← Fleet helpers and build_car()
+│   ├── reliability_profiles.json ← Checked-in reliability source data
+│   └── reliability.py            ← JSON loader for reliability profiles
 ├── scoring/
 │   └── reliability.py    ← Composite reliability score computation
 ├── cost/
 │   ├── energy.py         ← Fuel/electricity cost with PHEV blending
 │   ├── maintenance.py    ← Maintenance cost model
-│   ├── depreciation.py   ← Residual value, depreciation, capital cost
+│   ├── depreciation.py   ← Residual value, depreciation, purchase opportunity cost
 │   └── tco.py            ← Assembles one complete result row
-└── reports/
-    └── __init__.py       ← DataFrame builder, CSV writer, console printer
+├── pricing/
+│   └── finn.py           ← FINN scraping, matching and price cache handling
+└── reports/              ← Side effects: caches and generated CSVs
 ```
 
 ---
@@ -187,8 +197,9 @@ There are two layers in this repo:
 1. Model definition
    This is the canonical definition of a car type.
    Add entries in:
-   - `car_reliability/data/catalogue.py`
-   - `car_reliability/data/reliability.py`
+   - `car_reliability/data/catalogue.json`
+   - `car_reliability/data/reliability_profiles.json`
+   - `car_reliability/data/model_assumptions.json` if the model should scrape reliably
 
 2. Car instance
    This is one concrete comparison candidate with price, year and km.
@@ -198,7 +209,7 @@ The code supports two instance modes:
 1. Named model mode
    Use `build_car("Toyota RAV4 Hybrid")`
    This copies the repo's default reference instance for that model from
-   `reference_fleet.py`.
+   `reference_fleet.json`.
 
 2. Override mode
    Use `build_car("Toyota RAV4 Hybrid", price_nok=260_000, km=95_000)`
@@ -220,75 +231,105 @@ The output field is `foregone_resale_value_nok`, meaning the sale value you
 give up by keeping the car instead of selling it today.
 
 If you want a model to appear in the default shortlist, also add a default
-reference instance to `car_reliability/data/reference_fleet.py`.
+reference instance to `car_reliability/data/reference_fleet.json`.
+
+## Run modes
+
+The CLI has five explicit run modes:
+
+- default CLI run / `--rerun-model`
+  Refresh FINN prices, recompute reliability, recompute TCO, refresh caches.
+- `--scrape-prices`
+  Refresh only the FINN price cache. No reliability run, no TCO CSV output.
+- `--use-cached-scraped-price`
+  Do not scrape. Reuse cached FINN prices and rerun reliability + TCO.
+- `--use-cached-reliability`
+  Reuse cached reliability outputs and rerun cost/reporting layers.
+- `--use-cached`
+  Reuse cached final result rows and do not overwrite caches.
+
+The Python API stays conservative by default:
+
+```python
+df = run()
+```
+
+That path recomputes reliability and TCO from checked-in source data without
+live scraping unless you pass an explicit `RunMode`.
 
 ## FINN price estimation
 
-Live FINN pricing is opt-in with `--scrape-prices`.
-
-Manual `--price` overrides apply only in the default non-scraping mode.
-If `--scrape-prices` or `--use-cached-scraped-prices` is active, the scraped
-price wins.
-
-It does not use a strict arithmetic mean. The estimator:
+The FINN estimator does not use a strict arithmetic mean. It:
 - filters listings to the expected model and year/km window
 - ranks accepted listings by closeness to the target year and km
 - takes the nearest comparable subset
 - uses the median price from that subset as the typical price
 
-This output is labeled `price_source=finn_typical`.
-
-Successful live scraping updates `reports/finn_price_cache.json`.
-
-You can then rerun offline with:
+Successful live scraping updates `finn_price_cache.json` in the active
+`output_dir`.
 
 ```bash
-car-reliability --use-cached-scraped-prices
+car-reliability --scrape-prices
+car-reliability --use-cached-scraped-price
 ```
 
-Cache-only mode uses the saved estimates and labels them
-`price_source=finn_cached`.
-It does not fall back to live fetching.
+The project also writes:
+- `reliability_cache.json`
+- `results_cache.json`
+- `overrides.json`
+- `tco_full.csv`
+- `tco_summary.csv`
 
-Cached prices are matched against the full reference identity:
+`overrides.json` is generated automatically if it does not exist.
+Each fleet entry starts with `null` values, and only non-null values are used
+as overrides. Manual overrides win over scraped prices and cached results.
+
+All caches are keyed by the full reference identity:
 - `model`
 - `year`
 - `model_year` when present, otherwise `year`
 - `km`
 
-This matters for model-year experiments. A `Toyota RAV4 Hybrid` `2018` entry
-and a `Toyota RAV4 Hybrid` `2020` entry are cached separately, so both must be
-present in `reports/finn_price_cache.json` if you want to rerun the full
-default fleet in cache-only mode.
+This matters for model-year experiments, so a `Toyota RAV4 Hybrid` `2018`
+entry and a `Toyota RAV4 Hybrid` `2020` entry are cached separately.
 
-A typical workflow is:
+## Manual overrides
 
-```bash
-# 1. Populate or refresh the cache from live FINN data
-car-reliability --scrape-prices --no-output
+Use `overrides.json` when you want manual scenario values to beat scraped and
+cached values. Missing or `null` fields mean "do not override".
 
-# 2. Reuse the saved prices offline
-car-reliability --use-cached-scraped-prices
+Example:
+
+```json
+{
+  "fleet_overrides": {
+    "Mitsubishi Outlander PHEV::2020::60000": {
+      "price_nok": null,
+      "km": null,
+      "year": null,
+      "model_year": null,
+      "url": null,
+      "known_repairs_nok": null,
+      "current_resale_value_nok": null,
+      "scheduled_maintenance_nok": null,
+      "residual_base": null,
+      "resale_nok": 150000
+    }
+  }
+}
 ```
 
-The same works from Python:
-
-```python
-from car_reliability.pipeline import run
-
-# Populate the cache
-run(price_estimation=True, write_output=False, verbose=False)
-
-# Reuse cached prices only
-df = run(
-    price_estimation=True,
-    use_cached_scraped_prices=True,
-)
-```
-
-If a cached entry is missing, or its `year` / `model_year` / `km` does not
-match the current reference car, cache-only mode raises an error and asks you
-to rerun with live scraping.
+Supported override fields:
+- `price_nok`
+- `km`
+- `year`
+- `model_year`
+- `url`
+- `known_repairs_nok`
+- `current_resale_value_nok`
+- `scheduled_maintenance_nok`
+- `residual_base`
+- `resale_nok`
 
 Example:
 

@@ -1,0 +1,160 @@
+{
+  "pricing_profiles": {
+    "Mazda CX-5 diesel AWD": {
+      "excluded_tokens": [
+        "petrol",
+        "bensin"
+      ],
+      "query": "mazda cx-5 diesel awd",
+      "required_groups": [
+        [
+          "cx 5",
+          "cx-5"
+        ],
+        [
+          "diesel",
+          "2 2d",
+          "2.2d"
+        ],
+        [
+          "awd",
+          "4x4"
+        ]
+      ]
+    },
+    "Mercedes EQC": {
+      "excluded_tokens": [
+        "eqe",
+        "eqs"
+      ],
+      "query": "mercedes eqc",
+      "required_groups": [
+        [
+          "eqc"
+        ]
+      ]
+    },
+    "Mercedes GLC 300e 4MATIC": {
+      "excluded_tokens": [
+        "diesel",
+        "220d",
+        "300d"
+      ],
+      "query": "mercedes glc 300e",
+      "required_groups": [
+        [
+          "glc"
+        ],
+        [
+          "300e",
+          "300 e",
+          "phev",
+          "plug-in",
+          "plug in",
+          "hybrid"
+        ]
+      ]
+    },
+    "Mitsubishi Outlander PHEV": {
+      "excluded_tokens": [
+        "diesel",
+        "di-d"
+      ],
+      "query": "mitsubishi outlander phev",
+      "required_groups": [
+        [
+          "outlander"
+        ],
+        [
+          "phev",
+          "plug-in",
+          "plug in",
+          "hybrid"
+        ]
+      ]
+    },
+    "Skoda Kodiaq 2.0 TDI 4x4": {
+      "excluded_tokens": [
+        "tsi",
+        "petrol",
+        "bensin"
+      ],
+      "query": "skoda kodiaq 2.0 tdi 4x4",
+      "required_groups": [
+        [
+          "kodiaq"
+        ],
+        [
+          "tdi"
+        ],
+        [
+          "4x4",
+          "4wd"
+        ]
+      ]
+    },
+    "Skoda Superb 2.0 TDI 4x4": {
+      "excluded_tokens": [
+        "iv"
+      ],
+      "query": "skoda superb tdi 4x4",
+      "required_groups": [
+        [
+          "superb"
+        ],
+        [
+          "tdi"
+        ],
+        [
+          "4x4",
+          "4wd"
+        ]
+      ]
+    },
+    "Tesla Model Y": {
+      "excluded_tokens": [
+        "model s",
+        "model 3",
+        "model x"
+      ],
+      "query": "tesla model y",
+      "required_groups": [
+        [
+          "model y"
+        ]
+      ]
+    },
+    "Toyota RAV4 Hybrid": {
+      "excluded_tokens": [
+        "plug-in",
+        "plug in",
+        "phev",
+        "ladbar"
+      ],
+      "query": "toyota rav4 hybrid",
+      "required_groups": [
+        [
+          "rav4"
+        ],
+        [
+          "hybrid"
+        ]
+      ]
+    },
+    "Volkswagen Passat GTE": {
+      "excluded_tokens": [
+        "tdi",
+        "diesel"
+      ],
+      "query": "volkswagen passat gte",
+      "required_groups": [
+        [
+          "passat"
+        ],
+        [
+          "gte"
+        ]
+      ]
+    }
+  }
+}

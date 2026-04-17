@@ -1,0 +1,247 @@
+{
+  "profiles": {
+    "Mazda CX-5 diesel AWD": {
+      "complexity_risk": 9,
+      "evidence_confidence": 79.0,
+      "failure_cost_risk": 7,
+      "known_failure_modes": [
+        "DPF",
+        "injectors",
+        "exhaust/emissions ancillaries"
+      ],
+      "owner_score": 84.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "Diesel CX-5 scored 88.5% with DPF and exhaust-related complaints noted.",
+          "url": "https://www.whatcar.com/mazda/cx-5/estate/used-review/n947/reliability"
+        }
+      ],
+      "survey_score": 88.5
+    },
+    "Mercedes EQC": {
+      "complexity_risk": 14,
+      "evidence_confidence": 66.0,
+      "failure_cost_risk": 10,
+      "known_failure_modes": [
+        "high-voltage systems",
+        "air suspension/electronics",
+        "premium EV ancillaries"
+      ],
+      "owner_score": 81.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "EQC was not in the latest survey; Mercedes brand placed 22nd of 31 manufacturers.",
+          "url": "https://www.whatcar.com/mercedes-benz/eqc/4x4/used-review/n23007/reliability"
+        }
+      ],
+      "survey_score": 83.0
+    },
+    "Mercedes GLC 300e 4MATIC": {
+      "complexity_risk": 11,
+      "evidence_confidence": 84.0,
+      "failure_cost_risk": 6,
+      "known_failure_modes": [
+        "non-engine electrics",
+        "infotainment/sensors",
+        "PHEV control systems"
+      ],
+      "owner_score": 94.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "Mercedes GLC topped the large SUV reliability survey with a 97.9% score and battery/electrics the most common concern.",
+          "url": "https://www.whatcar.com/news/reliability-survey-most-reliable-large-suvs/n26156/"
+        },
+        {
+          "publisher": "What Car?",
+          "summary": "Used GLC reliability report highlights non-engine electrics, infotainment and warning-light issues as the main owner-reported faults.",
+          "url": "https://www.whatcar.com/mercedes-benz/glc/estate/used-review/n904/reliability"
+        }
+      ],
+      "survey_score": 97.9
+    },
+    "Mitsubishi Outlander PHEV": {
+      "complexity_risk": 10,
+      "evidence_confidence": 72.0,
+      "failure_cost_risk": 9,
+      "known_failure_modes": [
+        "battery degradation",
+        "charger/BMS",
+        "PHEV control systems"
+      ],
+      "owner_score": 84.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "PHEV placed 13th of 14 hybrids in the survey, despite Mitsubishi brand strength.",
+          "url": "https://www.whatcar.com/mitsubishi/outlander/4x4/used-review/n769/reliability"
+        },
+        {
+          "publisher": "Electrifying",
+          "summary": "Used-buyer guide is materially more positive than the What Car? ranking.",
+          "url": "https://www.electrifying.com/used-reviews/mitsubishi/outlander-phev/review"
+        }
+      ],
+      "survey_score": 86.0
+    },
+    "Skoda Kodiaq 2.0 TDI 4x4": {
+      "complexity_risk": 12,
+      "evidence_confidence": 86.0,
+      "failure_cost_risk": 7,
+      "known_failure_modes": [
+        "electrics",
+        "EGR/DPF",
+        "AWD/diesel ancillaries"
+      ],
+      "owner_score": 90.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "Diesel Kodiaq scored 94.7% and finished fourth in class, with mainly electrical and exhaust issues.",
+          "url": "https://www.whatcar.com/skoda/kodiaq/estate/used-review/n954/reliability"
+        }
+      ],
+      "survey_score": 94.7
+    },
+    "Skoda Superb 2.0 TDI 4x4": {
+      "complexity_risk": 14,
+      "evidence_confidence": 84.0,
+      "failure_cost_risk": 8,
+      "known_failure_modes": [
+        "EGR/DPF",
+        "injectors",
+        "diesel AWD ancillaries"
+      ],
+      "owner_score": 88.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "Diesel estate counterpart ranked near the top of the class with a 98% score.",
+          "url": "https://www.whatcar.com/skoda/superb/estate/used-review/n916/reliability"
+        }
+      ],
+      "survey_score": 98.0
+    },
+    "Tesla Model Y": {
+      "complexity_risk": 8,
+      "evidence_confidence": 80.0,
+      "failure_cost_risk": 6,
+      "known_failure_modes": [
+        "build quality",
+        "suspension/wear items",
+        "electronics/trim"
+      ],
+      "owner_score": 90.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "Model Y scored 97.1% and finished third of 27 electric SUVs, with build-quality complaints more common than drivetrain faults.",
+          "url": "https://www.whatcar.com/tesla/model-y/estate/used-review/n25945/reliability"
+        }
+      ],
+      "survey_score": 97.1
+    },
+    "Toyota Avensis": {
+      "complexity_risk": 5,
+      "evidence_confidence": 58.0,
+      "failure_cost_risk": 4,
+      "known_failure_modes": [
+        "generic assumption"
+      ],
+      "owner_score": 90.0,
+      "sources": [
+        {
+          "publisher": "Model assumption",
+          "summary": "Generic Avensis assumption pending exact year and engine.",
+          "url": ""
+        }
+      ],
+      "survey_score": 94.0
+    },
+    "Toyota RAV4 Hybrid": {
+      "complexity_risk": 6,
+      "evidence_confidence": 95.0,
+      "failure_cost_risk": 3,
+      "known_failure_modes": [
+        "minor trim/electrics"
+      ],
+      "owner_score": 98.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "99.2% reliability score and only 2% of owners reporting faults.",
+          "url": "https://www.whatcar.com/toyota/rav4/4x4/used-review/n22427/reliability"
+        }
+      ],
+      "survey_score": 99.2
+    },
+    "Volkswagen Passat GTE": {
+      "complexity_risk": 15,
+      "evidence_confidence": 82.0,
+      "failure_cost_risk": 11,
+      "known_failure_modes": [
+        "DSG",
+        "hybrid control",
+        "electrical/software"
+      ],
+      "owner_score": 78.0,
+      "sources": [
+        {
+          "publisher": "What Car?",
+          "summary": "82.2% reliability score and 19th of 20 executive cars.",
+          "url": "https://www.whatcar.com/volkswagen/passat-gte/estate/used-review/n18007/reliability"
+        }
+      ],
+      "survey_score": 82.2
+    }
+  },
+  "year_profiles": {
+    "Toyota RAV4 Hybrid": [
+      {
+        "profile": {
+          "complexity_risk": 6,
+          "evidence_confidence": 88.0,
+          "failure_cost_risk": 3,
+          "known_failure_modes": [
+            "12V battery/aux electrical issues",
+            "trim/noise complaints"
+          ],
+          "owner_score": 94.0,
+          "sources": [
+            {
+              "publisher": "Consumer Reports",
+              "summary": "2018 RAV4 Hybrid was more reliable than peers, with owner reports clustering around electrical accessories, noises/leaks and liftgate hardware.",
+              "url": "https://www.consumerreports.org/cars/toyota/rav4-hybrid/2018/reliability/"
+            }
+          ],
+          "survey_score": 96.0
+        },
+        "year": 2018
+      },
+      {
+        "profile": {
+          "complexity_risk": 7,
+          "evidence_confidence": 90.0,
+          "failure_cost_risk": 4,
+          "known_failure_modes": [
+            "engine cooling",
+            "fuel system/emissions",
+            "electric motor and driveline complaints"
+          ],
+          "owner_score": 95.0,
+          "sources": [
+            {
+              "publisher": "Consumer Reports",
+              "summary": "2020 RAV4 Hybrid was more reliable than peers, with owner reports centered on engine cooling, fuel-system/emissions, electric motor and driveline areas.",
+              "url": "https://www.consumerreports.org/cars/toyota/rav4-hybrid/2020/reliability/"
+            }
+          ],
+          "survey_score": 96.0
+        },
+        "year": 2020
+      }
+    ]
+  }
+}

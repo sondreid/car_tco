@@ -1,0 +1,74 @@
+{
+  "Mazda CX-5 diesel AWD": {
+    "consumption": {
+      "diesel_l": 5.8
+    },
+    "residual_base": 0.6,
+    "scheduled_maintenance_nok": 7000
+  },
+  "Mercedes EQC": {
+    "consumption": {
+      "kwh": 24.0
+    },
+    "residual_base": 0.64,
+    "scheduled_maintenance_nok": 4000
+  },
+  "Mercedes GLC 300e 4MATIC": {
+    "consumption": {
+      "kwh": 13.8,
+      "petrol_l": 2.5
+    },
+    "residual_base": 0.68,
+    "scheduled_maintenance_nok": 7000
+  },
+  "Mitsubishi Outlander PHEV": {
+    "consumption": {
+      "petrol_l": 5.2
+    },
+    "residual_base": 0.72,
+    "scheduled_maintenance_nok": 6000
+  },
+  "Skoda Kodiaq 2.0 TDI 4x4": {
+    "consumption": {
+      "diesel_l": 6.6
+    },
+    "residual_base": 0.65,
+    "scheduled_maintenance_nok": 7500
+  },
+  "Skoda Superb 2.0 TDI 4x4": {
+    "consumption": {
+      "diesel_l": 6.3
+    },
+    "residual_base": 0.68,
+    "scheduled_maintenance_nok": 7000
+  },
+  "Tesla Model Y": {
+    "consumption": {
+      "kwh": 18.0
+    },
+    "residual_base": 0.69,
+    "scheduled_maintenance_nok": 3000
+  },
+  "Toyota Avensis": {
+    "consumption": {
+      "petrol_l": 6.8
+    },
+    "residual_base": 0.55,
+    "scheduled_maintenance_nok": 7500
+  },
+  "Toyota RAV4 Hybrid": {
+    "consumption": {
+      "petrol_l": 4.9105
+    },
+    "residual_base": 0.78,
+    "scheduled_maintenance_nok": 5500
+  },
+  "Volkswagen Passat GTE": {
+    "consumption": {
+      "kwh": 12.5,
+      "petrol_l": 5.6
+    },
+    "residual_base": 0.64,
+    "scheduled_maintenance_nok": 6500
+  }
+}

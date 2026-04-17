@@ -14,6 +14,7 @@ from .depreciation import depreciation_cost
 def compute_tco(
     car: dict,
     assumptions: Assumptions | None = None,
+    reliability: dict | None = None,
 ) -> dict:
     """
     Compute the full TCO breakdown for a single car dict.
@@ -44,15 +45,43 @@ def compute_tco(
     current_resale_value = round(float(car.get("current_resale_value_nok", 0)))
     foregone_resale = current_resale_value if existing_car else 0
 
-    rel = reliability_breakdown(model, year, km, model_year=model_year, assumptions=assumptions)
-    maint = maintenance_cost(model, rel, assumptions)
+    rel = reliability or reliability_breakdown(
+        model,
+        year,
+        km,
+        model_year=model_year,
+        assumptions=assumptions,
+    )
+    maint = maintenance_cost(
+        model,
+        rel,
+        assumptions,
+        scheduled_maintenance_override_nok=car.get("scheduled_maintenance_nok_override"),
+    )
     energy = energy_cost(model, assumptions)
-    dep = depreciation_cost(model, price, km, rel, assumptions)
+    dep = depreciation_cost(
+        model,
+        price,
+        km,
+        rel,
+        assumptions,
+        residual_base_override=car.get("residual_base_override"),
+        resale_override_nok=car.get("resale_nok_override"),
+    )
     maintenance_total = maint["maintenance_nok"] + known_repairs
+    foregone_resale_opportunity = round(
+        foregone_resale * assumptions.capital_rate * assumptions.horizon_years
+    )
+    known_repairs_opportunity = round(
+        known_repairs * assumptions.capital_rate * assumptions.horizon_years
+    )
+    opportunity_total = (
+        dep["opportunity_nok"] + foregone_resale_opportunity + known_repairs_opportunity
+    )
 
     total = (
         dep["depreciation_nok"]
-        + dep["investment_nok"]
+        + opportunity_total
         + energy
         + maintenance_total
         + foregone_resale
@@ -79,7 +108,7 @@ def compute_tco(
         "maintenance_nok": maintenance_total,
         "energy_nok": energy,
         "depreciation_nok": dep["depreciation_nok"],
-        "investment_cost_nok": dep["investment_nok"],
+        "opportunity_cost_nok": opportunity_total,
         "resale_nok": dep["resale_nok"],
         "total_cost_nok": total,
         "cost_per_month_nok": round(total / (assumptions.horizon_years * 12)),

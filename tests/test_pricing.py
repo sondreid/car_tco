@@ -78,6 +78,7 @@ def test_estimator_uses_typical_price_of_matching_listings():
     )
 
     assert estimate.estimated_price_nok == 220_000
+    assert estimate.estimated_km == 59_500
     assert estimate.match_count == 2
     assert estimate.comparable_count == 2
     assert estimate.price_source == "finn_typical"
@@ -103,6 +104,7 @@ def test_estimator_falls_back_when_matches_are_missing():
     )
 
     assert estimate.estimated_price_nok == 200_000
+    assert estimate.estimated_km is None
     assert estimate.used_fallback is True
 
 
@@ -115,6 +117,7 @@ def test_cache_roundtrip_and_lookup(tmp_path):
                 "model": "Toyota RAV4 Hybrid",
                 "cache_key": "Toyota RAV4 Hybrid::2019::120000",
                 "estimated_price_nok": 255_000,
+                "estimated_km": 118_000,
                 "price_source": "finn_typical",
                 "match_count": 4,
                 "comparable_count": 4,
@@ -132,6 +135,7 @@ def test_cache_roundtrip_and_lookup(tmp_path):
         cache,
     )
     assert estimate.estimated_price_nok == 255_000
+    assert estimate.estimated_km == 118_000
     assert estimate.price_source == "finn_cached"
 
 
@@ -152,6 +156,7 @@ def test_cache_lookup_uses_model_year_when_present():
             "model": "Toyota RAV4 Hybrid",
             "cache_key": "Toyota RAV4 Hybrid::2018::120000",
             "estimated_price_nok": 235_000,
+            "estimated_km": 117_000,
             "price_source": "finn_typical",
             "match_count": 3,
             "comparable_count": 3,
@@ -167,6 +172,7 @@ def test_cache_lookup_uses_model_year_when_present():
         cache,
     )
     assert estimate.estimated_price_nok == 235_000
+    assert estimate.estimated_km == 117_000
 
 
 def test_listing_match_allows_lower_km_but_rejects_higher_km():

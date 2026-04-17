@@ -21,10 +21,14 @@ dev = [
 
 [project.scripts]
 car-reliability = "car_reliability.cli:main"
+area-search = "area_search.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["car_reliability*"]
+include = ["car_reliability*", "area_search*"]
+
+[tool.setuptools.package-data]
+"car_reliability.data" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

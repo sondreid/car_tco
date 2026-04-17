@@ -1,5 +1,5 @@
 """
-Depreciation and capital (opportunity / financing) cost.
+Depreciation and purchase opportunity cost.
 
 Residual value is modelled as:
     factor = residual_base
@@ -21,9 +21,11 @@ def depreciation_cost(
     km: float,
     reliability: dict[str, float],
     assumptions: Assumptions | None = None,
+    residual_base_override: float | None = None,
+    resale_override_nok: float | None = None,
 ) -> dict[str, float]:
     """
-    Compute resale value, depreciation, and capital cost.
+    Compute resale value, depreciation, and purchase opportunity cost.
 
     Parameters
     ----------
@@ -43,12 +45,16 @@ def depreciation_cost(
     dict with keys:
         resale_nok        – estimated resale price after ownership horizon
         depreciation_nok  – price - resale
-        investment_nok    – capital cost on average capital tied up
+        opportunity_nok   – opportunity cost on average capital tied up
     """
     if assumptions is None:
         assumptions = Assumptions()
 
-    resid_base = CAR_CATALOGUE[model]["residual_base"]
+    resid_base = (
+        float(residual_base_override)
+        if residual_base_override is not None
+        else float(CAR_CATALOGUE[model]["residual_base"])
+    )
 
     km_end = km + assumptions.annual_km * assumptions.horizon_years
     km_excess = max(km_end - 160_000, 0)
@@ -63,14 +69,18 @@ def depreciation_cost(
     )
     factor = max(assumptions.residual_floor, min(assumptions.residual_ceiling, factor))
 
-    resale = round(price_nok * factor)
+    resale = (
+        round(float(resale_override_nok))
+        if resale_override_nok is not None
+        else round(price_nok * factor)
+    )
     depreciation = round(price_nok - resale)
-    investment = round(
+    opportunity = round(
         (price_nok + resale) / 2 * assumptions.capital_rate * assumptions.horizon_years
     )
 
     return {
         "resale_nok": resale,
         "depreciation_nok": depreciation,
-        "investment_nok": investment,
+        "opportunity_nok": opportunity,
     }
