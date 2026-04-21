@@ -4,7 +4,7 @@
       "cache_key": "Mazda CX-5 diesel AWD::2016::112200",
       "comparable_count": 4,
       "estimated_km": 85700,
-      "estimated_price_nok": 214266,
+      "estimated_price_nok": 209266,
       "match_count": 4,
       "model": "Mazda CX-5 diesel AWD",
       "price_note": "median of nearest 4 comparable listings from 4 accepted matches",
@@ -12,7 +12,7 @@
       "reference_km": 112200,
       "reference_model_year": 2016,
       "reference_year": 2016,
-      "scraped_at": "2026-04-16T13:20:40.130143+00:00"
+      "scraped_at": "2026-04-21T10:23:20.357035+00:00"
     },
     "Mercedes EQC": {
       "comparable_count": 3,
@@ -28,30 +28,30 @@
     "Mercedes EQC::2020::126000": {
       "cache_key": "Mercedes EQC::2020::126000",
       "comparable_count": 6,
-      "estimated_km": 101750,
-      "estimated_price_nok": 349000,
-      "match_count": 22,
+      "estimated_km": 106500,
+      "estimated_price_nok": 327850,
+      "match_count": 19,
       "model": "Mercedes EQC",
-      "price_note": "median of nearest 6 comparable listings from 22 accepted matches",
+      "price_note": "median of nearest 6 comparable listings from 19 accepted matches",
       "price_source": "finn_typical",
       "reference_km": 126000,
       "reference_model_year": 2020,
       "reference_year": 2020,
-      "scraped_at": "2026-04-16T13:21:23.871617+00:00"
+      "scraped_at": "2026-04-21T10:24:01.423843+00:00"
     },
     "Mercedes GLC 300e 4MATIC::2020::86772": {
       "cache_key": "Mercedes GLC 300e 4MATIC::2020::86772",
       "comparable_count": 6,
-      "estimated_km": 77250,
-      "estimated_price_nok": 437495,
-      "match_count": 17,
+      "estimated_km": 70500,
+      "estimated_price_nok": 430000,
+      "match_count": 16,
       "model": "Mercedes GLC 300e 4MATIC",
-      "price_note": "median of nearest 6 comparable listings from 17 accepted matches",
+      "price_note": "median of nearest 6 comparable listings from 16 accepted matches",
       "price_source": "finn_typical",
       "reference_km": 86772,
       "reference_model_year": 2020,
       "reference_year": 2020,
-      "scraped_at": "2026-04-16T13:20:51.737720+00:00"
+      "scraped_at": "2026-04-21T10:23:30.536876+00:00"
     },
     "Mitsubishi Outlander PHEV": {
       "comparable_count": 4,
@@ -104,16 +104,16 @@
     "Skoda Kodiaq 2.0 TDI 4x4::2018::132700": {
       "cache_key": "Skoda Kodiaq 2.0 TDI 4x4::2018::132700",
       "comparable_count": 6,
-      "estimated_km": 128850,
-      "estimated_price_nok": 352216,
-      "match_count": 9,
+      "estimated_km": 126386,
+      "estimated_price_nok": 359450,
+      "match_count": 10,
       "model": "Skoda Kodiaq 2.0 TDI 4x4",
-      "price_note": "median of nearest 6 comparable listings from 9 accepted matches",
+      "price_note": "median of nearest 6 comparable listings from 10 accepted matches",
       "price_source": "finn_typical",
       "reference_km": 132700,
       "reference_model_year": 2018,
       "reference_year": 2018,
-      "scraped_at": "2026-04-16T13:20:29.824372+00:00"
+      "scraped_at": "2026-04-21T10:23:11.351950+00:00"
     },
     "Skoda Superb 2.0 TDI 4x4": {
       "comparable_count": 3,
@@ -129,8 +129,8 @@
     "Skoda Superb 2.0 TDI 4x4::2018::140000": {
       "cache_key": "Skoda Superb 2.0 TDI 4x4::2018::140000",
       "comparable_count": 6,
-      "estimated_km": 123500,
-      "estimated_price_nok": 254716,
+      "estimated_km": 129000,
+      "estimated_price_nok": 269716,
       "match_count": 9,
       "model": "Skoda Superb 2.0 TDI 4x4",
       "price_note": "median of nearest 6 comparable listings from 9 accepted matches",
@@ -138,7 +138,7 @@
       "reference_km": 140000,
       "reference_model_year": 2018,
       "reference_year": 2018,
-      "scraped_at": "2026-04-16T13:21:35.481632+00:00"
+      "scraped_at": "2026-04-21T10:24:13.434729+00:00"
     },
     "Tesla Model Y": {
       "comparable_count": 6,
@@ -154,8 +154,8 @@
     "Tesla Model Y::2021::68901": {
       "cache_key": "Tesla Model Y::2021::68901",
       "comparable_count": 6,
-      "estimated_km": 62870,
-      "estimated_price_nok": 324945,
+      "estimated_km": 62966,
+      "estimated_price_nok": 361266,
       "match_count": 9,
       "model": "Tesla Model Y",
       "price_note": "median of nearest 6 comparable listings from 9 accepted matches",
@@ -163,7 +163,7 @@
       "reference_km": 68901,
       "reference_model_year": 2021,
       "reference_year": 2021,
-      "scraped_at": "2026-04-16T13:21:07.589957+00:00"
+      "scraped_at": "2026-04-21T10:23:46.026920+00:00"
     },
     "Toyota RAV4 Hybrid": {
       "comparable_count": 2,
@@ -178,17 +178,17 @@
     },
     "Toyota RAV4 Hybrid::2018::120000": {
       "cache_key": "Toyota RAV4 Hybrid::2018::120000",
-      "comparable_count": 2,
-      "estimated_km": 94950,
-      "estimated_price_nok": 288950,
-      "match_count": 2,
+      "comparable_count": 6,
+      "estimated_km": 95085,
+      "estimated_price_nok": 306266,
+      "match_count": 8,
       "model": "Toyota RAV4 Hybrid",
-      "price_note": "median of nearest 2 comparable listings from 2 accepted matches",
+      "price_note": "median of nearest 6 comparable listings from 8 accepted matches",
       "price_source": "finn_typical",
       "reference_km": 120000,
       "reference_model_year": 2018,
       "reference_year": 2018,
-      "scraped_at": "2026-04-16T13:19:49.508427+00:00"
+      "scraped_at": "2026-04-21T10:22:27.627502+00:00"
     },
     "Toyota RAV4 Hybrid::2019::120000": {
       "cache_key": "Toyota RAV4 Hybrid::2019::120000",
@@ -205,17 +205,17 @@
     },
     "Toyota RAV4 Hybrid::2020::120000": {
       "cache_key": "Toyota RAV4 Hybrid::2020::120000",
-      "comparable_count": 4,
-      "estimated_km": 73290,
-      "estimated_price_nok": 372450,
-      "match_count": 4,
+      "comparable_count": 6,
+      "estimated_km": 91250,
+      "estimated_price_nok": 332000,
+      "match_count": 10,
       "model": "Toyota RAV4 Hybrid",
-      "price_note": "median of nearest 4 comparable listings from 4 accepted matches",
+      "price_note": "median of nearest 6 comparable listings from 10 accepted matches",
       "price_source": "finn_typical",
       "reference_km": 120000,
       "reference_model_year": 2020,
       "reference_year": 2020,
-      "scraped_at": "2026-04-16T13:19:53.761370+00:00"
+      "scraped_at": "2026-04-21T10:22:33.982448+00:00"
     },
     "Volkswagen Passat GTE": {
       "comparable_count": 2,
@@ -231,8 +231,8 @@
     "Volkswagen Passat GTE::2020::90000": {
       "cache_key": "Volkswagen Passat GTE::2020::90000",
       "comparable_count": 4,
-      "estimated_km": 64360,
-      "estimated_price_nok": 236667,
+      "estimated_km": 70468,
+      "estimated_price_nok": 239900,
       "match_count": 4,
       "model": "Volkswagen Passat GTE",
       "price_note": "median of nearest 4 comparable listings from 4 accepted matches",
@@ -240,7 +240,7 @@
       "reference_km": 90000,
       "reference_model_year": 2020,
       "reference_year": 2020,
-      "scraped_at": "2026-04-16T13:20:15.814145+00:00"
+      "scraped_at": "2026-04-21T10:22:56.141592+00:00"
     }
   }
 }

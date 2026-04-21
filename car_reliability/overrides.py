@@ -50,7 +50,7 @@ def load_overrides(path: Path, fleet: list[dict]) -> dict[str, dict]:
     payload = json.loads(path.read_text())
     fleet_overrides = payload.get("fleet_overrides")
     if not isinstance(fleet_overrides, dict):
-        raise ValueError("overrides.json must contain a fleet_overrides object")
+        raise ValueError("override file must contain a fleet_overrides object")
     return fleet_overrides
 
 

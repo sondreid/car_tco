@@ -139,6 +139,7 @@ car_reliability/
 ├── __main__.py           ← python -m car_reliability support
 ├── cache_store.py        ← Shared JSON cache reader/writer
 ├── overrides.py          ← Manual per-car override loading and precedence
+├── .codex/skills/        ← Repo-local agent skills, including reliability profile updates
 ├── data/
 │   ├── catalogue.json            ← Checked-in model maintenance/residual/consumption data
 │   ├── catalogue.py              ← JSON loader for catalogue data
@@ -146,8 +147,8 @@ car_reliability/
 │   ├── model_assumptions.py      ← JSON loader for pricing model profiles
 │   ├── reference_fleet.json      ← Checked-in default comparison fleet
 │   ├── reference_fleet.py        ← Fleet helpers and build_car()
-│   ├── reliability_profiles.json ← Checked-in reliability source data
-│   └── reliability.py            ← JSON loader for reliability profiles
+│   ├── reliability_profiles.json ← LLM-fillable reliability evidence with metadata
+│   └── reliability.py            ← JSON loader for reliability profiles and metadata
 ├── scoring/
 │   └── reliability.py    ← Composite reliability score computation
 ├── cost/
@@ -200,6 +201,7 @@ There are two layers in this repo:
    - `car_reliability/data/catalogue.json`
    - `car_reliability/data/reliability_profiles.json`
    - `car_reliability/data/model_assumptions.json` if the model should scrape reliably
+   - use `.codex/skills/reliability-profile-updater` when you want Codex to research and update reliability evidence
 
 2. Car instance
    This is one concrete comparison candidate with price, year and km.
@@ -276,13 +278,15 @@ car-reliability --use-cached-scraped-price
 The project also writes:
 - `reliability_cache.json`
 - `results_cache.json`
-- `overrides.json`
+- `overrides_example.json`
 - `tco_full.csv`
 - `tco_summary.csv`
 
-`overrides.json` is generated automatically if it does not exist.
-Each fleet entry starts with `null` values, and only non-null values are used
-as overrides. Manual overrides win over scraped prices and cached results.
+`overrides_example.json` is generated automatically if it does not exist.
+It is a scaffold/example file. If `overrides.json` exists in the same output
+directory, the pipeline applies that file automatically instead. Each fleet
+entry starts with `null` values, and only non-null values are used as
+overrides. Manual overrides win over scraped prices and cached results.
 
 All caches are keyed by the full reference identity:
 - `model`
@@ -296,7 +300,8 @@ entry and a `Toyota RAV4 Hybrid` `2020` entry are cached separately.
 ## Manual overrides
 
 Use `overrides.json` when you want manual scenario values to beat scraped and
-cached values. Missing or `null` fields mean "do not override".
+cached values. `overrides_example.json` is only the generated template.
+Missing or `null` fields mean "do not override".
 
 Example:
 

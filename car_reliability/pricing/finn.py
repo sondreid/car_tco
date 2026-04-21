@@ -183,6 +183,7 @@ def estimate_fleet_prices(
     estimator: FinnPriceEstimator | None = None,
     cache_mode: bool = False,
     cache_file: str | Path | None = None,
+    allow_cache_miss_fallback: bool = False,
 ) -> list[dict]:
     """Return a fleet with estimated prices and price metadata."""
 
@@ -204,10 +205,22 @@ def estimate_fleet_prices(
         if cache_mode:
             try:
                 estimate = estimate_price_from_cache(car, cache)
-            except KeyError as exc:
-                raise KeyError(
-                    f"{exc.args[0]} in {cache_path}. Run with --scrape-prices to populate the cache."
-                ) from exc
+            except (KeyError, ValueError) as exc:
+                if not allow_cache_miss_fallback:
+                    if isinstance(exc, KeyError):
+                        raise KeyError(
+                            f"{exc.args[0]} in {cache_path}. Run with --scrape-prices to populate the cache."
+                        ) from exc
+                    raise
+                estimate = FinnPriceEstimate(
+                    estimated_price_nok=int(float(car["price_nok"])),
+                    estimated_km=int(float(car["km"])),
+                    price_source="manual",
+                    match_count=0,
+                    comparable_count=0,
+                    used_fallback=True,
+                    notes="cached scraped price missing for current override; kept current inputs",
+                )
         else:
             estimate = service.estimate_price(car)
             if estimate.price_source == "finn_typical":

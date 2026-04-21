@@ -130,7 +130,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--overrides-file",
         default=None,
         metavar="PATH",
-        help="Path to manual overrides JSON file (default: OUTPUT_DIR/overrides.json).",
+        help=(
+            "Path to manual overrides JSON file "
+            "(default: auto-create OUTPUT_DIR/overrides_example.json and "
+            "auto-apply OUTPUT_DIR/overrides.json if it exists)."
+        ),
     )
     p.add_argument(
         "--year-tolerance",

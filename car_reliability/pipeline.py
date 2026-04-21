@@ -22,6 +22,7 @@ from .cost.tco import compute_tco
 from .data.reference_fleet import build_reference_fleet
 from .overrides import (
     apply_fleet_overrides,
+    ensure_overrides_file,
     has_active_overrides,
     has_price_input_overrides,
     load_overrides,
@@ -55,6 +56,18 @@ def _resolve_cache_path(
     if explicit_path is not None:
         return Path(explicit_path)
     return Path(output_dir) / filename
+
+
+def _resolve_overrides_path(
+    output_dir: Path,
+    explicit_path: str | Path | None,
+) -> tuple[Path, Path]:
+    if explicit_path is not None:
+        path = Path(explicit_path)
+        return path, path
+    example_path = output_dir / "overrides_example.json"
+    active_path = output_dir / "overrides.json"
+    return example_path, active_path if active_path.exists() else example_path
 
 
 def _build_dataframe(rows: list[dict]) -> pd.DataFrame:
@@ -196,10 +209,9 @@ def run(
         reliability_cache_file,
         "reliability_cache.json",
     )
-    overrides_path = _resolve_cache_path(
+    overrides_example_path, overrides_path = _resolve_overrides_path(
         output_dir_path,
         overrides_file,
-        "overrides.json",
     )
     results_cache_path = _resolve_cache_path(
         output_dir_path,
@@ -208,6 +220,7 @@ def run(
     )
 
     fleet = build_reference_fleet(price_overrides=price_overrides, extra_cars=extra_cars)
+    ensure_overrides_file(overrides_example_path, fleet)
     fleet_overrides = load_overrides(overrides_path, fleet)
     overrides_active = has_active_overrides(fleet_overrides)
     price_input_overrides = has_price_input_overrides(fleet_overrides)
@@ -231,6 +244,7 @@ def run(
             estimator=price_estimator,
             cache_mode=True,
             cache_file=price_cache_path,
+            allow_cache_miss_fallback=price_input_overrides,
         )
         fleet = apply_fleet_overrides(fleet, fleet_overrides)
         rows, reliability_updates, results_updates = _compute_results(fleet, assumptions)
@@ -266,6 +280,7 @@ def run(
                     estimator=price_estimator,
                     cache_mode=True,
                     cache_file=price_cache_path,
+                    allow_cache_miss_fallback=True,
                 )
             fleet = apply_fleet_overrides(fleet, fleet_overrides)
             reliability_cache = load_entries_cache(reliability_cache_path, "reliability")

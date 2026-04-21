@@ -6,4 +6,4 @@ output
 .DS_Store
 build
 reports/*.json
-!reports/overrides.json
+!reports/overrides_example.json
