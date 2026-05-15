@@ -17,7 +17,6 @@ _OVERRIDE_TEMPLATE = {
     "known_repairs_nok": None,
     "current_resale_value_nok": None,
     "scheduled_maintenance_nok": None,
-    "residual_base": None,
     "resale_nok": None,
 }
 
@@ -57,7 +56,8 @@ def load_overrides(path: Path, fleet: list[dict]) -> dict[str, dict]:
 def apply_fleet_overrides(fleet: list[dict], fleet_overrides: dict[str, dict]) -> list[dict]:
     """Apply non-null overrides to the in-memory fleet."""
     for car in fleet:
-        lookup_key = build_cache_key(car)
+        lookup_key = str(car.get("_override_lookup_key", build_cache_key(car)))
+        car["_override_lookup_key"] = lookup_key
         overrides = fleet_overrides.get(lookup_key, {})
         if not isinstance(overrides, dict):
             continue
@@ -80,8 +80,6 @@ def apply_fleet_overrides(fleet: list[dict], fleet_overrides: dict[str, dict]) -
             car["scheduled_maintenance_nok_override"] = float(
                 overrides["scheduled_maintenance_nok"]
             )
-        if overrides.get("residual_base") is not None:
-            car["residual_base_override"] = float(overrides["residual_base"])
         if overrides.get("resale_nok") is not None:
             car["resale_nok_override"] = float(overrides["resale_nok"])
     return fleet

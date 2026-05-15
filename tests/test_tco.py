@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import json
 
-from car_reliability.assumptions import Assumptions
-from car_reliability.cost.tco import compute_tco
-from car_reliability.pipeline import RunMode, run
-from car_reliability.pricing import FinnPriceEstimator, PriceEstimatorConfig
-from car_reliability.pricing.finn import FinnPriceEstimate
+from car_tco.assumptions import Assumptions
+from car_tco.cost.tco import compute_tco
+from car_tco.pipeline import RunMode, run
+from car_tco.pricing import FinnPriceEstimator, PriceEstimatorConfig
+from car_tco.pricing.finn import FinnPriceEstimate
 
 
 _RAV4 = {
@@ -304,6 +304,48 @@ def test_cached_price_mode_keeps_current_override_when_cache_key_is_missing(tmp_
     assert rav4_row["reference_price_nok"] == 333_000
     assert rav4_row["reference_km"] == 100_000
     assert rav4_row["price_source"] == "manual"
+
+
+def test_rerun_model_reapplies_price_input_overrides_after_scrape(tmp_path):
+    run(output_dir=tmp_path, verbose=False)
+    explicit_path = tmp_path / "overrides.json"
+    explicit_path.write_text(
+        json.dumps(
+            {
+                "fleet_overrides": {
+                    "Toyota RAV4 Hybrid::2020::120000": {
+                        "price_nok": 333_000,
+                        "km": 100_000,
+                        "year": None,
+                        "model_year": 2019,
+                        "url": None,
+                        "known_repairs_nok": None,
+                        "current_resale_value_nok": None,
+                        "scheduled_maintenance_nok": None,
+                        "residual_base": None,
+                        "resale_nok": None,
+                    }
+                }
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+
+    df = run(
+        mode=RunMode.RERUN_MODEL,
+        price_estimator=StubEstimator(
+            {"Toyota RAV4 Hybrid": 255_000},
+            {"Toyota RAV4 Hybrid": 118_000},
+        ),
+        output_dir=tmp_path,
+        verbose=False,
+    )
+    rav4_row = df[
+        (df["model"] == "Toyota RAV4 Hybrid") & (df["reference_model_year"] == 2019)
+    ].iloc[0]
+    assert rav4_row["reference_price_nok"] == 333_000
+    assert rav4_row["reference_km"] == 100_000
 
 
 def test_no_phev_blend_uses_catalogue():

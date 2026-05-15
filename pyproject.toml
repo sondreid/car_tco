@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "car_reliability"
+name = "car_tco"
 version = "0.1.0"
 description = "Modular TCO and reliability analysis for used cars (Norwegian market)"
 readme = "README.md"
@@ -20,15 +20,15 @@ dev = [
 ]
 
 [project.scripts]
-car-reliability = "car_reliability.cli:main"
+car-tco = "car_tco.cli:main"
 area-search = "area_search.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["car_reliability*", "area_search*"]
+include = ["car_tco*", "area_search*"]
 
 [tool.setuptools.package-data]
-"car_reliability.data" = ["*.json"]
+"car_tco.data" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

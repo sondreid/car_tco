@@ -1,22 +1,22 @@
 """
-Command-line interface for car_reliability.
+Command-line interface for car_tco.
 
 Usage examples
 --------------
 # Refresh FINN prices and rerun the whole model
-    car-reliability
+    car-tco
 
 # Refresh only the FINN price cache
-    car-reliability --scrape-prices
+    car-tco --scrape-prices
 
 # Rerun the model using cached FINN prices
-    car-reliability --use-cached-scraped-price
+    car-tco --use-cached-scraped-price
 
 # Rerun costs using cached reliability outputs
-    car-reliability --use-cached-reliability
+    car-tco --use-cached-reliability
 
 # Reuse the full cached model output without recomputing
-    car-reliability --use-cached
+    car-tco --use-cached
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def _parse_price_override(value: str) -> tuple[str, float]:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="car-reliability",
+        prog="car-tco",
         description="Compute 3-year TCO and reliability scores for a set of reference cars.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,

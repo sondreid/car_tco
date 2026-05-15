@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from car_reliability.pricing.finn import (
+from car_tco.pricing.finn import (
     FinnPriceEstimator,
     PriceEstimatorConfig,
     estimate_price_from_cache,
@@ -79,7 +79,7 @@ def test_estimator_uses_typical_price_of_matching_listings():
 
     assert estimate.estimated_price_nok == 220_000
     assert estimate.estimated_km == 59_500
-    assert estimate.match_count == 2
+    assert estimate.match_count ==2
     assert estimate.comparable_count == 2
     assert estimate.price_source == "finn_typical"
 
@@ -194,7 +194,7 @@ def test_listing_match_allows_lower_km_but_rejects_higher_km():
         km=125_000,
         url="https://example.com/high",
     )
-    from car_reliability.pricing.finn import _MODEL_PROFILES
+    from car_tco.pricing.finn import _MODEL_PROFILES
 
     profile = _MODEL_PROFILES["Toyota RAV4 Hybrid"]
     assert is_listing_match(low_km, car, profile, config) is True
@@ -212,7 +212,7 @@ def test_listing_match_rejects_price_above_reference_price():
         km=110_000,
         url="https://example.com/expensive",
     )
-    from car_reliability.pricing.finn import _MODEL_PROFILES
+    from car_tco.pricing.finn import _MODEL_PROFILES
 
     profile = _MODEL_PROFILES["Toyota RAV4 Hybrid"]
     assert is_listing_match(expensive, car, profile, config) is False

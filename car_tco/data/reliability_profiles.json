@@ -1,5 +1,43 @@
 {
   "profiles": {
+    "Audi e-tron": {
+      "metadata": {
+        "status": "draft",
+        "generated_by": "reliability-profile-updater",
+        "generated_at": "2026-04-21",
+        "reviewed_by": null,
+        "reviewed_at": null
+      },
+      "profile": {
+        "survey_score": 82.0,
+        "owner_score": 74.0,
+        "complexity_risk": 15,
+        "failure_cost_risk": 11,
+        "evidence_confidence": 80.0,
+        "known_failure_modes": [
+          "charging system",
+          "high-voltage battery/water ingress",
+          "electrical/software"
+        ],
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "url": "https://www.whatcar.com/audi/e-tron/estate/used-review/n23155/reliability",
+            "summary": "Used e-tron reliability is described as mixed, with owners reporting charging-system and complex-technology faults plus a recall tied to water ingress into the high-voltage battery."
+          },
+          {
+            "publisher": "Electrifying",
+            "url": "https://www.electrifying.com/used-reviews/audi/e-tron/review",
+            "summary": "Used review flags fairly major potential reliability problems and says it would struggle to recommend the e-tron on used-buyer terms."
+          },
+          {
+            "publisher": "Autocar",
+            "url": "https://www.autocar.co.uk/car-review/audi/e-tron/long-term-reviews/audi-e-tron-55-quattro-2019-long-term-test",
+            "summary": "Long-term test reported faults with adaptive cruise control and the emergency-call function, reinforcing the downside of the car's electrical complexity."
+          }
+        ]
+      }
+    },
     "Mazda CX-5 diesel AWD": {
       "metadata": {
         "status": "draft",
@@ -254,6 +292,44 @@
             "publisher": "What Car?",
             "url": "https://www.whatcar.com/toyota/rav4/4x4/used-review/n22427/reliability",
             "summary": "99.2% reliability score and only 2% of owners reporting faults."
+          }
+        ]
+      }
+    },
+    "Volvo XC40 Recharge": {
+      "metadata": {
+        "status": "draft",
+        "generated_by": "reliability-profile-updater",
+        "generated_at": "2026-04-21",
+        "reviewed_by": null,
+        "reviewed_at": null
+      },
+      "profile": {
+        "survey_score": 95.8,
+        "owner_score": 86.0,
+        "complexity_risk": 10,
+        "failure_cost_risk": 7,
+        "evidence_confidence": 81.0,
+        "known_failure_modes": [
+          "software/infotainment",
+          "battery management/charging",
+          "safety sensors"
+        ],
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "url": "https://www.whatcar.com/volvo/xc40-recharge-pure-electric/estate/used-review/n27591/reliability",
+            "summary": "XC40 Recharge placed third of 16 electric SUVs with a 95.8% score, but owner feedback still mentions warning-light, infotainment and battery-management faults."
+          },
+          {
+            "publisher": "Electrifying",
+            "url": "https://www.electrifying.com/used-reviews/volvo-reviews/xc40-recharge/review",
+            "summary": "Used review says the most common complaints center on software, infotainment and connectivity, with safety sensors another recurring issue."
+          },
+          {
+            "publisher": "Autocar",
+            "url": "https://www.autocar.co.uk/car-review/volvo/xc40-recharge-2021-2025/reliability",
+            "summary": "Used review highlights propulsion-system software glitches, charging and battery-management faults, front suspension knocks and occasional boot-strut problems."
           }
         ]
       }

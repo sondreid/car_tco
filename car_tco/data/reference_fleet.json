@@ -1,5 +1,15 @@
 [
   {
+    "description": "FINN reference electric luxury SUV",
+    "km": 93700,
+    "model": "Audi e-tron",
+    "model_year": 2022,
+    "name": "Audi e-tron reference",
+    "price_nok": 369000,
+    "url": "https://www.finn.no/mobility/item/450782715",
+    "year": 2022
+  },
+  {
     "current_resale_value_nok": 50000,
     "description": "existing car, assumed 2012 petrol, known repairs required",
     "exclude_from_price_estimation": true,
@@ -92,6 +102,16 @@
     "price_nok": 264532,
     "url": "https://www.finn.no/mobility/item/459624653",
     "year": 2021
+  },
+  {
+    "description": "FINN reference electric compact SUV",
+    "km": 80000,
+    "model": "Volvo XC40 Recharge",
+    "model_year": 2023,
+    "name": "Volvo XC40 Recharge reference",
+    "price_nok": 349000,
+    "url": "https://www.finn.no/mobility/item/452691451",
+    "year": 2023
   },
   {
     "description": "FINN reference within current price/km comparison window",

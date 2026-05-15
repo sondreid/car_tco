@@ -1,8 +1,8 @@
 """Tests for the reliability scoring module."""
 
-from car_reliability.assumptions import Assumptions
-from car_reliability.data.reliability import RELIABILITY_PROFILES
-from car_reliability.scoring.reliability import reliability_breakdown, reliability_score
+from car_tco.assumptions import Assumptions
+from car_tco.data.reliability import RELIABILITY_PROFILES
+from car_tco.scoring.reliability import reliability_breakdown, reliability_score
 
 
 def test_score_in_bounds():

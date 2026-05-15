@@ -1,6 +1,6 @@
 """Tests for reference fleet helpers."""
 
-from car_reliability.data.reference_fleet import build_car
+from car_tco.data.reference_fleet import build_car
 
 
 def test_build_car_uses_default_reference():

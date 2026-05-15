@@ -1,5 +1,16 @@
 {
   "fleet_overrides": {
+    "Audi e-tron::2022::93700": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
     "Mazda CX-5 diesel AWD::2016::112200": {
       "current_resale_value_nok": null,
       "km": null,
@@ -140,6 +151,17 @@
       "price_nok": null,
       "resale_nok": null,
       "residual_base": null,
+      "scheduled_maintenance_nok": null,
+      "url": null,
+      "year": null
+    },
+    "Volvo XC40 Recharge::2023::80000": {
+      "current_resale_value_nok": null,
+      "km": null,
+      "known_repairs_nok": null,
+      "model_year": null,
+      "price_nok": null,
+      "resale_nok": null,
       "scheduled_maintenance_nok": null,
       "url": null,
       "year": null

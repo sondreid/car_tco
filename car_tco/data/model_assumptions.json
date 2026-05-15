@@ -1,5 +1,23 @@
 {
   "pricing_profiles": {
+    "Audi e-tron": {
+      "excluded_tokens": [
+        "sportback",
+        "gt",
+        "q4",
+        "q6",
+        "q8",
+        "phev",
+        "hybrid"
+      ],
+      "query": "audi e-tron",
+      "required_groups": [
+        [
+          "e tron",
+          "e-tron"
+        ]
+      ]
+    },
     "Mazda CX-5 diesel AWD": {
       "excluded_tokens": [
         "petrol",
@@ -153,6 +171,31 @@
         ],
         [
           "gte"
+        ]
+      ]
+    },
+    "Volvo XC40 Recharge": {
+      "excluded_tokens": [
+        "hybrid",
+        "plug in",
+        "plug-in",
+        "t4",
+        "t5",
+        "bensin",
+        "diesel"
+      ],
+      "query": "volvo xc40 recharge",
+      "required_groups": [
+        [
+          "xc40"
+        ],
+        [
+          "recharge",
+          "pure electric",
+          "single motor",
+          "twin",
+          "p8",
+          "p6"
         ]
       ]
     }

@@ -1,8 +1,8 @@
 """
 High-level pipeline — single call from library or CLI.
 
-    from car_reliability.pipeline import RunMode, run
-    from car_reliability.assumptions import Assumptions
+    from car_tco.pipeline import RunMode, run
+    from car_tco.assumptions import Assumptions
 
     df = run(assumptions=Assumptions(charge_share=0.25))
     df = run(mode=RunMode.USE_CACHED_SCRAPED_PRICE)

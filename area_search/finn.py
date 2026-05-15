@@ -12,7 +12,7 @@ import subprocess
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from car_reliability.pricing.finn import normalize_text, parse_int
+from car_tco.pricing.finn import normalize_text, parse_int
 
 
 _SEARCH_URL = "https://www.finn.no/mobility/search/car"

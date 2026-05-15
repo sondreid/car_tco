@@ -112,6 +112,9 @@ class Assumptions:
     """Annual failure-risk cost per confidence point below 75."""
 
     # ── Residual value ────────────────────────────────────────────────────────
+    reference_year: int | None = None
+    """Calendar year used as 'now' for age computation; None uses system clock."""
+
     residual_reliability_sensitivity: float = 0.002
     """Residual adjustment per point of reliability above/below 85."""
 
@@ -121,13 +124,20 @@ class Assumptions:
     residual_low_confidence_penalty_per_point: float = 0.0015
     """Residual penalty per point of confidence below 75."""
 
-    residual_km_penalty_per_10k: float = 0.01
-    """
-    Residual value penalty per 10 000 km beyond 160 000 km at end of
-    ownership (purchase km + annual_km * horizon_years).
-    """
+    residual_adj_cap: float = 0.10
+    """Symmetric cap on net reliability/risk/confidence adjustment."""
 
-    residual_floor: float = 0.45
+    age_decay_year_1: float = 0.15
+    age_decay_years_2_3: float = 0.10
+    age_decay_years_4_6: float = 0.07
+    age_decay_year_7_plus: float = 0.05
+
+    km_penalty_per_10k_band_1: float = 0.005
+    km_penalty_per_10k_band_2: float = 0.010
+    km_penalty_per_10k_band_3: float = 0.015
+    km_penalty_per_10k_band_4: float = 0.020
+
+    residual_floor: float = 0.10
     residual_ceiling: float = 0.85
 
     def phev_effective_consumption(self) -> tuple[float, float]:

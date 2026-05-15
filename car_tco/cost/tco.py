@@ -65,7 +65,7 @@ def compute_tco(
         km,
         rel,
         assumptions,
-        residual_base_override=car.get("residual_base_override"),
+        model_year=model_year,
         resale_override_nok=car.get("resale_nok_override"),
     )
     maintenance_total = maint["maintenance_nok"] + known_repairs

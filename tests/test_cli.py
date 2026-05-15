@@ -3,8 +3,8 @@
 from contextlib import redirect_stderr
 import io
 
-from car_reliability.cli import build_parser, _resolve_mode
-from car_reliability.pipeline import RunMode
+from car_tco.cli import build_parser, _resolve_mode
+from car_tco.pipeline import RunMode
 
 
 def test_cli_defaults_to_rerun_model():

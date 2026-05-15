@@ -1,6 +1,6 @@
 """Tests for assumption toggles and PHEV blend computation."""
 
-from car_reliability.assumptions import Assumptions
+from car_tco.assumptions import Assumptions
 
 
 def test_default_phev_blend():

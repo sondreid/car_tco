@@ -1,4 +1,4 @@
-# car_reliability
+# car_tco
 
 Modular Python package for computing 3-year Total Cost of Ownership (TCO) and
 composite reliability scores for a set of reference used cars (Norwegian market).
@@ -27,44 +27,44 @@ pip install -e ".[dev]"
 
 ```bash
 # Default CLI run — refresh FINN prices, rerun the model, write CSVs and caches
-car-reliability
+car-tco
 
 # Refresh only the FINN price/km cache
-car-reliability --scrape-prices
+car-tco --scrape-prices
 
 # Reuse cached FINN prices and rerun reliability + TCO
-car-reliability --use-cached-scraped-price
+car-tco --use-cached-scraped-price
 
 # Reuse cached reliability outputs and rerun cost/reporting layers
-car-reliability --use-cached-reliability
+car-tco --use-cached-reliability
 
 # Reuse the full cached model output without recomputing
-car-reliability --use-cached
+car-tco --use-cached
 
 # Manual-price Python-style default also exists in the library API
 # and still supports price overrides for scenario work
-car-reliability --petrol 25.0 --annual-km 20000 --years 4
+car-tco --petrol 25.0 --annual-km 20000 --years 4
 
 # Change PHEV charge assumption (pessimistic: 25% of trips start charged)
-car-reliability --charge-share 0.25
+car-tco --charge-share 0.25
 
 # Disable PHEV blending (model runs on petrol only)
-car-reliability --no-phev-blend
+car-tco --no-phev-blend
 
 # Change output location
-car-reliability --output-dir results/ --output-prefix scenario_cheap_energy
+car-tco --output-dir results/ --output-prefix scenario_cheap_energy
 
 # Suppress file output, print only
-car-reliability --no-output
+car-tco --no-output
 ```
 
 ### Python API
 
 ```python
-from car_reliability.pipeline import RunMode, run
-from car_reliability.assumptions import Assumptions
-from car_reliability.data import build_car
-from car_reliability.pricing import PriceEstimatorConfig
+from car_tco.pipeline import RunMode, run
+from car_tco.assumptions import Assumptions
+from car_tco.data import build_car
+from car_tco.pricing import PriceEstimatorConfig
 
 # Default Python API scenario uses checked-in reference prices
 df = run()
@@ -132,11 +132,11 @@ df = run(
 ## Package layout
 
 ```
-car_reliability/
+car_tco/
 ├── assumptions.py        ← All toggleable parameters (single source of truth)
 ├── pipeline.py           ← High-level run() entry point
-├── cli.py                ← argparse CLI (car-reliability command)
-├── __main__.py           ← python -m car_reliability support
+├── cli.py                ← argparse CLI (car-tco command)
+├── __main__.py           ← python -m car_tco support
 ├── cache_store.py        ← Shared JSON cache reader/writer
 ├── overrides.py          ← Manual per-car override loading and precedence
 ├── .codex/skills/        ← Repo-local agent skills, including reliability profile updates
@@ -198,9 +198,9 @@ There are two layers in this repo:
 1. Model definition
    This is the canonical definition of a car type.
    Add entries in:
-   - `car_reliability/data/catalogue.json`
-   - `car_reliability/data/reliability_profiles.json`
-   - `car_reliability/data/model_assumptions.json` if the model should scrape reliably
+   - `car_tco/data/catalogue.json`
+   - `car_tco/data/reliability_profiles.json`
+   - `car_tco/data/model_assumptions.json` if the model should scrape reliably
    - use `.codex/skills/reliability-profile-updater` when you want Codex to research and update reliability evidence
 
 2. Car instance
@@ -233,7 +233,7 @@ The output field is `foregone_resale_value_nok`, meaning the sale value you
 give up by keeping the car instead of selling it today.
 
 If you want a model to appear in the default shortlist, also add a default
-reference instance to `car_reliability/data/reference_fleet.json`.
+reference instance to `car_tco/data/reference_fleet.json`.
 
 ## Run modes
 
@@ -271,8 +271,8 @@ Successful live scraping updates `finn_price_cache.json` in the active
 `output_dir`.
 
 ```bash
-car-reliability --scrape-prices
-car-reliability --use-cached-scraped-price
+car-tco --scrape-prices
+car-tco --use-cached-scraped-price
 ```
 
 The project also writes:
@@ -339,7 +339,7 @@ Supported override fields:
 Example:
 
 ```python
-from car_reliability.data import build_car
+from car_tco.data import build_car
 
 rav4_default = build_car("Toyota RAV4 Hybrid")
 rav4_specific = build_car(
