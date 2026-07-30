@@ -1,0 +1,732 @@
+{
+  "Audi e-tron": {
+    "catalogue": {
+      "consumption": {
+        "kwh": 25.5
+      },
+      "residual_base": 0.62,
+      "scheduled_maintenance_nok": 4500
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "sportback",
+        "gt",
+        "q4",
+        "q6",
+        "q8",
+        "phev",
+        "hybrid"
+      ],
+      "query": "audi e-tron",
+      "required_groups": [
+        [
+          "e tron",
+          "e-tron"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-21",
+        "generated_by": "reliability-profile-updater",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 15,
+        "evidence_confidence": 80.0,
+        "failure_cost_risk": 11,
+        "known_failure_modes": [
+          "charging system",
+          "high-voltage battery/water ingress",
+          "electrical/software"
+        ],
+        "owner_score": 74.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "Used e-tron reliability is described as mixed, with owners reporting charging-system and complex-technology faults plus a recall tied to water ingress into the high-voltage battery.",
+            "url": "https://www.whatcar.com/audi/e-tron/estate/used-review/n23155/reliability"
+          },
+          {
+            "publisher": "Electrifying",
+            "summary": "Used review flags fairly major potential reliability problems and says it would struggle to recommend the e-tron on used-buyer terms.",
+            "url": "https://www.electrifying.com/used-reviews/audi/e-tron/review"
+          },
+          {
+            "publisher": "Autocar",
+            "summary": "Long-term test reported faults with adaptive cruise control and the emergency-call function, reinforcing the downside of the car's electrical complexity.",
+            "url": "https://www.autocar.co.uk/car-review/audi/e-tron/long-term-reviews/audi-e-tron-55-quattro-2019-long-term-test"
+          }
+        ],
+        "survey_score": 82.0
+      }
+    }
+  },
+  "Mazda CX-5 diesel AWD": {
+    "catalogue": {
+      "consumption": {
+        "diesel_l": 5.8
+      },
+      "residual_base": 0.6,
+      "scheduled_maintenance_nok": 7000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "petrol",
+        "bensin"
+      ],
+      "query": "mazda cx-5 diesel awd",
+      "required_groups": [
+        [
+          "cx 5",
+          "cx-5"
+        ],
+        [
+          "diesel",
+          "2 2d",
+          "2.2d"
+        ],
+        [
+          "awd",
+          "4x4"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 9,
+        "evidence_confidence": 79.0,
+        "failure_cost_risk": 7,
+        "known_failure_modes": [
+          "DPF",
+          "injectors",
+          "exhaust/emissions ancillaries"
+        ],
+        "owner_score": 84.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "Diesel CX-5 scored 88.5% with DPF and exhaust-related complaints noted.",
+            "url": "https://www.whatcar.com/mazda/cx-5/estate/used-review/n947/reliability"
+          }
+        ],
+        "survey_score": 88.5
+      }
+    }
+  },
+  "Mercedes EQC": {
+    "catalogue": {
+      "consumption": {
+        "kwh": 24.0
+      },
+      "residual_base": 0.64,
+      "scheduled_maintenance_nok": 4000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "eqe",
+        "eqs"
+      ],
+      "query": "mercedes eqc",
+      "required_groups": [
+        [
+          "eqc"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 14,
+        "evidence_confidence": 66.0,
+        "failure_cost_risk": 10,
+        "known_failure_modes": [
+          "high-voltage systems",
+          "air suspension/electronics",
+          "premium EV ancillaries"
+        ],
+        "owner_score": 81.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "EQC was not in the latest survey; Mercedes brand placed 22nd of 31 manufacturers.",
+            "url": "https://www.whatcar.com/mercedes-benz/eqc/4x4/used-review/n23007/reliability"
+          }
+        ],
+        "survey_score": 83.0
+      }
+    }
+  },
+  "Mercedes GLC 300e 4MATIC": {
+    "catalogue": {
+      "consumption": {
+        "kwh": 13.8,
+        "petrol_l": 2.5
+      },
+      "residual_base": 0.68,
+      "scheduled_maintenance_nok": 7000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "diesel",
+        "220d",
+        "300d"
+      ],
+      "query": "mercedes glc 300e",
+      "required_groups": [
+        [
+          "glc"
+        ],
+        [
+          "300e",
+          "300 e",
+          "phev",
+          "plug-in",
+          "plug in",
+          "hybrid"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 11,
+        "evidence_confidence": 84.0,
+        "failure_cost_risk": 6,
+        "known_failure_modes": [
+          "non-engine electrics",
+          "infotainment/sensors",
+          "PHEV control systems"
+        ],
+        "owner_score": 94.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "Mercedes GLC topped the large SUV reliability survey with a 97.9% score and battery/electrics the most common concern.",
+            "url": "https://www.whatcar.com/news/reliability-survey-most-reliable-large-suvs/n26156/"
+          },
+          {
+            "publisher": "What Car?",
+            "summary": "Used GLC reliability report highlights non-engine electrics, infotainment and warning-light issues as the main owner-reported faults.",
+            "url": "https://www.whatcar.com/mercedes-benz/glc/estate/used-review/n904/reliability"
+          }
+        ],
+        "survey_score": 97.9
+      }
+    }
+  },
+  "Mitsubishi Outlander PHEV": {
+    "catalogue": {
+      "consumption": {
+        "petrol_l": 5.2
+      },
+      "residual_base": 0.72,
+      "scheduled_maintenance_nok": 6000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "diesel",
+        "di-d"
+      ],
+      "query": "mitsubishi outlander phev",
+      "required_groups": [
+        [
+          "outlander"
+        ],
+        [
+          "phev",
+          "plug-in",
+          "plug in",
+          "hybrid"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 10,
+        "evidence_confidence": 72.0,
+        "failure_cost_risk": 9,
+        "known_failure_modes": [
+          "battery degradation",
+          "charger/BMS",
+          "PHEV control systems"
+        ],
+        "owner_score": 84.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "PHEV placed 13th of 14 hybrids in the survey, despite Mitsubishi brand strength.",
+            "url": "https://www.whatcar.com/mitsubishi/outlander/4x4/used-review/n769/reliability"
+          },
+          {
+            "publisher": "Electrifying",
+            "summary": "Used-buyer guide is materially more positive than the What Car? ranking.",
+            "url": "https://www.electrifying.com/used-reviews/mitsubishi/outlander-phev/review"
+          }
+        ],
+        "survey_score": 86.0
+      }
+    }
+  },
+  "Skoda Kodiaq 2.0 TDI 4x4": {
+    "catalogue": {
+      "consumption": {
+        "diesel_l": 6.6
+      },
+      "residual_base": 0.65,
+      "scheduled_maintenance_nok": 7500
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "tsi",
+        "petrol",
+        "bensin"
+      ],
+      "query": "skoda kodiaq 2.0 tdi 4x4",
+      "required_groups": [
+        [
+          "kodiaq"
+        ],
+        [
+          "tdi"
+        ],
+        [
+          "4x4",
+          "4wd"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 12,
+        "evidence_confidence": 86.0,
+        "failure_cost_risk": 7,
+        "known_failure_modes": [
+          "electrics",
+          "EGR/DPF",
+          "AWD/diesel ancillaries"
+        ],
+        "owner_score": 90.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "Diesel Kodiaq scored 94.7% and finished fourth in class, with mainly electrical and exhaust issues.",
+            "url": "https://www.whatcar.com/skoda/kodiaq/estate/used-review/n954/reliability"
+          }
+        ],
+        "survey_score": 94.7
+      }
+    }
+  },
+  "Skoda Superb 2.0 TDI 4x4": {
+    "catalogue": {
+      "consumption": {
+        "diesel_l": 6.3
+      },
+      "residual_base": 0.68,
+      "scheduled_maintenance_nok": 7000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "iv"
+      ],
+      "query": "skoda superb tdi 4x4",
+      "required_groups": [
+        [
+          "superb"
+        ],
+        [
+          "tdi"
+        ],
+        [
+          "4x4",
+          "4wd"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 14,
+        "evidence_confidence": 84.0,
+        "failure_cost_risk": 8,
+        "known_failure_modes": [
+          "EGR/DPF",
+          "injectors",
+          "diesel AWD ancillaries"
+        ],
+        "owner_score": 88.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "Diesel estate counterpart ranked near the top of the class with a 98% score.",
+            "url": "https://www.whatcar.com/skoda/superb/estate/used-review/n916/reliability"
+          }
+        ],
+        "survey_score": 98.0
+      }
+    }
+  },
+  "Tesla Model Y": {
+    "catalogue": {
+      "consumption": {
+        "kwh": 18.0
+      },
+      "residual_base": 0.69,
+      "scheduled_maintenance_nok": 3000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "model s",
+        "model 3",
+        "model x"
+      ],
+      "query": "tesla model y",
+      "required_groups": [
+        [
+          "model y"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 8,
+        "evidence_confidence": 80.0,
+        "failure_cost_risk": 6,
+        "known_failure_modes": [
+          "build quality",
+          "suspension/wear items",
+          "electronics/trim"
+        ],
+        "owner_score": 90.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "Model Y scored 97.1% and finished third of 27 electric SUVs, with build-quality complaints more common than drivetrain faults.",
+            "url": "https://www.whatcar.com/tesla/model-y/estate/used-review/n25945/reliability"
+          }
+        ],
+        "survey_score": 97.1
+      }
+    }
+  },
+  "Toyota Avensis": {
+    "catalogue": {
+      "consumption": {
+        "petrol_l": 6.8
+      },
+      "residual_base": 0.55,
+      "scheduled_maintenance_nok": 7500
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 5,
+        "evidence_confidence": 58.0,
+        "failure_cost_risk": 4,
+        "known_failure_modes": [
+          "generic assumption"
+        ],
+        "owner_score": 90.0,
+        "sources": [
+          {
+            "publisher": "Model assumption",
+            "summary": "Generic Avensis assumption pending exact year and engine.",
+            "url": ""
+          }
+        ],
+        "survey_score": 94.0
+      }
+    }
+  },
+  "Toyota RAV4 Hybrid": {
+    "catalogue": {
+      "consumption": {
+        "petrol_l": 4.9105
+      },
+      "residual_base": 0.78,
+      "scheduled_maintenance_nok": 5500
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "plug-in",
+        "plug in",
+        "phev",
+        "ladbar"
+      ],
+      "query": "toyota rav4 hybrid",
+      "required_groups": [
+        [
+          "rav4"
+        ],
+        [
+          "hybrid"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 6,
+        "evidence_confidence": 95.0,
+        "failure_cost_risk": 3,
+        "known_failure_modes": [
+          "minor trim/electrics"
+        ],
+        "owner_score": 98.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "99.2% reliability score and only 2% of owners reporting faults.",
+            "url": "https://www.whatcar.com/toyota/rav4/4x4/used-review/n22427/reliability"
+          }
+        ],
+        "survey_score": 99.2
+      },
+      "year_profiles": [
+        {
+          "metadata": {
+            "generated_at": "2026-04-17",
+            "generated_by": "repo_migration",
+            "reviewed_at": null,
+            "reviewed_by": null,
+            "status": "draft"
+          },
+          "profile": {
+            "complexity_risk": 6,
+            "evidence_confidence": 88.0,
+            "failure_cost_risk": 3,
+            "known_failure_modes": [
+              "12V battery/aux electrical issues",
+              "trim/noise complaints"
+            ],
+            "owner_score": 94.0,
+            "sources": [
+              {
+                "publisher": "Consumer Reports",
+                "summary": "2018 RAV4 Hybrid was more reliable than peers, with owner reports clustering around electrical accessories, noises/leaks and liftgate hardware.",
+                "url": "https://www.consumerreports.org/cars/toyota/rav4-hybrid/2018/reliability/"
+              }
+            ],
+            "survey_score": 96.0
+          },
+          "year": 2018
+        },
+        {
+          "metadata": {
+            "generated_at": "2026-04-17",
+            "generated_by": "repo_migration",
+            "reviewed_at": null,
+            "reviewed_by": null,
+            "status": "draft"
+          },
+          "profile": {
+            "complexity_risk": 7,
+            "evidence_confidence": 90.0,
+            "failure_cost_risk": 4,
+            "known_failure_modes": [
+              "engine cooling",
+              "fuel system/emissions",
+              "electric motor and driveline complaints"
+            ],
+            "owner_score": 95.0,
+            "sources": [
+              {
+                "publisher": "Consumer Reports",
+                "summary": "2020 RAV4 Hybrid was more reliable than peers, with owner reports centered on engine cooling, fuel-system/emissions, electric motor and driveline areas.",
+                "url": "https://www.consumerreports.org/cars/toyota/rav4-hybrid/2020/reliability/"
+              }
+            ],
+            "survey_score": 96.0
+          },
+          "year": 2020
+        }
+      ]
+    }
+  },
+  "Volkswagen Passat GTE": {
+    "catalogue": {
+      "consumption": {
+        "kwh": 12.5,
+        "petrol_l": 5.6
+      },
+      "residual_base": 0.64,
+      "scheduled_maintenance_nok": 6500
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "tdi",
+        "diesel"
+      ],
+      "query": "volkswagen passat gte",
+      "required_groups": [
+        [
+          "passat"
+        ],
+        [
+          "gte"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-17",
+        "generated_by": "repo_migration",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 15,
+        "evidence_confidence": 82.0,
+        "failure_cost_risk": 11,
+        "known_failure_modes": [
+          "DSG",
+          "hybrid control",
+          "electrical/software"
+        ],
+        "owner_score": 78.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "82.2% reliability score and 19th of 20 executive cars.",
+            "url": "https://www.whatcar.com/volkswagen/passat-gte/estate/used-review/n18007/reliability"
+          }
+        ],
+        "survey_score": 82.2
+      }
+    }
+  },
+  "Volvo XC40 Recharge": {
+    "catalogue": {
+      "consumption": {
+        "kwh": 21.5
+      },
+      "residual_base": 0.67,
+      "scheduled_maintenance_nok": 4000
+    },
+    "pricing_profile": {
+      "excluded_tokens": [
+        "hybrid",
+        "plug in",
+        "plug-in",
+        "t4",
+        "t5",
+        "bensin",
+        "diesel"
+      ],
+      "query": "volvo xc40 recharge",
+      "required_groups": [
+        [
+          "xc40"
+        ],
+        [
+          "recharge",
+          "pure electric",
+          "single motor",
+          "twin",
+          "p8",
+          "p6"
+        ]
+      ]
+    },
+    "reliability": {
+      "metadata": {
+        "generated_at": "2026-04-21",
+        "generated_by": "reliability-profile-updater",
+        "reviewed_at": null,
+        "reviewed_by": null,
+        "status": "draft"
+      },
+      "profile": {
+        "complexity_risk": 10,
+        "evidence_confidence": 81.0,
+        "failure_cost_risk": 7,
+        "known_failure_modes": [
+          "software/infotainment",
+          "battery management/charging",
+          "safety sensors"
+        ],
+        "owner_score": 86.0,
+        "sources": [
+          {
+            "publisher": "What Car?",
+            "summary": "XC40 Recharge placed third of 16 electric SUVs with a 95.8% score, but owner feedback still mentions warning-light, infotainment and battery-management faults.",
+            "url": "https://www.whatcar.com/volvo/xc40-recharge-pure-electric/estate/used-review/n27591/reliability"
+          },
+          {
+            "publisher": "Electrifying",
+            "summary": "Used review says the most common complaints center on software, infotainment and connectivity, with safety sensors another recurring issue.",
+            "url": "https://www.electrifying.com/used-reviews/volvo-reviews/xc40-recharge/review"
+          },
+          {
+            "publisher": "Autocar",
+            "summary": "Used review highlights propulsion-system software glitches, charging and battery-management faults, front suspension knocks and occasional boot-strut problems.",
+            "url": "https://www.autocar.co.uk/car-review/volvo/xc40-recharge-2021-2025/reliability"
+          }
+        ],
+        "survey_score": 95.8
+      }
+    }
+  }
+}

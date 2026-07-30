@@ -1,10 +1,9 @@
-.claude
-output
+.claude/
+.codex/
+.DS_Store
 *venv*
 *pycache*
 *egg*
-.DS_Store
-build
-reports/*.json
-!reports/overrides_example.json
-.codex
+/build/
+/output/
+/reports/

@@ -4,7 +4,7 @@ Estimated maintenance cost over the ownership horizon.
 
 from __future__ import annotations
 
-from ..data.catalogue import CAR_CATALOGUE
+from ..data.models import CAR_CATALOGUE
 from ..assumptions import Assumptions
 
 

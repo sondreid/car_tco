@@ -1,7 +1,7 @@
 """Tests for the reliability scoring module."""
 
 from car_tco.assumptions import Assumptions
-from car_tco.data.reliability import RELIABILITY_PROFILES
+from car_tco.data.models import RELIABILITY_PROFILES
 from car_tco.scoring.reliability import reliability_breakdown, reliability_score
 
 

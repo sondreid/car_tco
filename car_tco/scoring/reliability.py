@@ -17,7 +17,7 @@ they can be toggled freely without touching this module.
 from __future__ import annotations
 
 from ..assumptions import Assumptions
-from ..data.reliability import resolve_reliability_profile
+from ..data.models import resolve_reliability_profile
 
 _SCORE_FLOOR = 60.0
 _SCORE_CEILING = 98.0

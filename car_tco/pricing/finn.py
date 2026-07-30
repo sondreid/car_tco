@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from ..cache_store import load_entries_cache, save_entries_cache
-from ..data.model_assumptions import PRICING_MODEL_PROFILES, PricingModelProfile
+from ..data.models import PRICING_MODEL_PROFILES, PricingModelProfile
 
 
 _SEARCH_URL = "https://www.finn.no/mobility/search/car"

@@ -1,10 +1,24 @@
-"""LLM-fillable reliability evidence loaded from checked-in JSON."""
+"""Per-model definitions loaded from checked-in models.json.
+
+Each entry holds the catalogue data, the optional FINN pricing profile and
+the reliability evidence for one car model.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from ._json import load_json_data
+
+
+@dataclass(frozen=True)
+class PricingModelProfile:
+    """FINN search and matching profile for one model."""
+
+    query: str
+    required_groups: tuple[tuple[str, ...], ...]
+    excluded_tokens: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -31,7 +45,7 @@ class ReliabilityProfile:
 
 @dataclass(frozen=True)
 class ReliabilityProfileMetadata:
-    """Metadata for one fillable reliability entry."""
+    """Provenance metadata for one reliability entry."""
 
     status: str
     generated_by: str
@@ -47,6 +61,17 @@ class ReliabilityYearObservation:
     year: int
     profile: ReliabilityProfile
     metadata: ReliabilityProfileMetadata
+
+
+def _build_pricing_profile(payload: dict) -> PricingModelProfile:
+    return PricingModelProfile(
+        query=str(payload["query"]),
+        required_groups=tuple(
+            tuple(str(token) for token in group)
+            for group in payload["required_groups"]
+        ),
+        excluded_tokens=tuple(str(token) for token in payload.get("excluded_tokens", ())),
+    )
 
 
 def _build_metadata(payload: dict) -> ReliabilityProfileMetadata:
@@ -87,64 +112,61 @@ def _build_profile(payload: dict) -> ReliabilityProfile:
     )
 
 
-def _build_profile_entry(payload: dict) -> tuple[ReliabilityProfileMetadata, ReliabilityProfile]:
-    metadata_payload = payload.get("metadata")
-    profile_payload = payload.get("profile")
-    if metadata_payload is None and profile_payload is None:
-        metadata_payload = {
-            "status": "legacy",
-            "generated_by": "unknown",
-            "generated_at": "",
-            "reviewed_by": None,
-            "reviewed_at": None,
-        }
-        profile_payload = payload
-    if not isinstance(metadata_payload, dict):
-        raise ValueError("reliability entry metadata must be an object")
-    if not isinstance(profile_payload, dict):
-        raise ValueError("reliability entry profile must be an object")
-    return _build_metadata(metadata_payload), _build_profile(profile_payload)
+def _build_year_observations(payloads: list) -> tuple[ReliabilityYearObservation, ...]:
+    return tuple(
+        ReliabilityYearObservation(
+            year=int(observation["year"]),
+            profile=_build_profile(observation["profile"]),
+            metadata=_build_metadata(observation["metadata"]),
+        )
+        for observation in payloads
+    )
 
 
-def _load_profiles() -> tuple[
+def _load_models() -> tuple[
+    dict[str, dict[str, Any]],
+    dict[str, PricingModelProfile],
     dict[str, ReliabilityProfile],
     dict[str, ReliabilityProfileMetadata],
     dict[str, tuple[ReliabilityYearObservation, ...]],
 ]:
-    payload = load_json_data("reliability_profiles.json")
+    payload = load_json_data("models.json")
     if not isinstance(payload, dict):
-        raise ValueError("reliability_profiles.json must contain an object")
+        raise ValueError("models.json must contain an object keyed by model name")
 
-    profiles_payload = payload.get("profiles")
-    if not isinstance(profiles_payload, dict):
-        raise ValueError("reliability_profiles.json must contain a profiles object")
-    profiles: dict[str, ReliabilityProfile] = {}
-    profile_metadata: dict[str, ReliabilityProfileMetadata] = {}
-    for model, profile_payload in profiles_payload.items():
-        metadata, profile = _build_profile_entry(profile_payload)
-        profiles[model] = profile
-        profile_metadata[model] = metadata
-
-    year_profiles_payload = payload.get("year_profiles", {})
-    if not isinstance(year_profiles_payload, dict):
-        raise ValueError("reliability_profiles.json year_profiles must be an object")
+    catalogue: dict[str, dict[str, Any]] = {}
+    pricing_profiles: dict[str, PricingModelProfile] = {}
+    reliability_profiles: dict[str, ReliabilityProfile] = {}
+    reliability_metadata: dict[str, ReliabilityProfileMetadata] = {}
     year_profiles: dict[str, tuple[ReliabilityYearObservation, ...]] = {}
-    for model, observations in year_profiles_payload.items():
-        resolved_observations: list[ReliabilityYearObservation] = []
-        for observation in observations:
-            metadata, profile = _build_profile_entry(observation)
-            resolved_observations.append(
-                ReliabilityYearObservation(
-                    year=int(observation["year"]),
-                    profile=profile,
-                    metadata=metadata,
-                )
-            )
-        year_profiles[model] = tuple(resolved_observations)
-    return profiles, profile_metadata, year_profiles
+
+    for model, entry in payload.items():
+        if not isinstance(entry, dict):
+            raise ValueError(f"models.json entry for {model!r} must be an object")
+        if not isinstance(entry.get("catalogue"), dict):
+            raise ValueError(f"models.json entry for {model!r} must contain a catalogue object")
+        reliability = entry.get("reliability")
+        if not isinstance(reliability, dict):
+            raise ValueError(f"models.json entry for {model!r} must contain a reliability object")
+
+        catalogue[model] = entry["catalogue"]
+        if "pricing_profile" in entry:
+            pricing_profiles[model] = _build_pricing_profile(entry["pricing_profile"])
+        reliability_profiles[model] = _build_profile(reliability["profile"])
+        reliability_metadata[model] = _build_metadata(reliability["metadata"])
+        if "year_profiles" in reliability:
+            year_profiles[model] = _build_year_observations(reliability["year_profiles"])
+
+    return catalogue, pricing_profiles, reliability_profiles, reliability_metadata, year_profiles
 
 
-RELIABILITY_PROFILES, RELIABILITY_PROFILE_METADATA, RELIABILITY_YEAR_PROFILES = _load_profiles()
+(
+    CAR_CATALOGUE,
+    PRICING_MODEL_PROFILES,
+    RELIABILITY_PROFILES,
+    RELIABILITY_PROFILE_METADATA,
+    RELIABILITY_YEAR_PROFILES,
+) = _load_models()
 
 
 def resolve_reliability_profile(

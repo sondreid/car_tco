@@ -7,7 +7,7 @@ PHEV dynamic blending (controlled by ``Assumptions.phev_dynamic_consumption``).
 
 from __future__ import annotations
 
-from ..data.catalogue import CAR_CATALOGUE
+from ..data.models import CAR_CATALOGUE
 from ..assumptions import Assumptions
 
 _PHEV_MODEL = "Mitsubishi Outlander PHEV"

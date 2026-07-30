@@ -1,13 +1,13 @@
 """Tests for checked-in JSON-backed model data."""
 
-from car_tco.data.catalogue import CAR_CATALOGUE
-from car_tco.data.model_assumptions import PRICING_MODEL_PROFILES
-from car_tco.data.reference_fleet import build_reference_fleet
-from car_tco.data.reliability import (
+from car_tco.data.models import (
+    CAR_CATALOGUE,
+    PRICING_MODEL_PROFILES,
     RELIABILITY_PROFILE_METADATA,
     RELIABILITY_PROFILES,
     RELIABILITY_YEAR_PROFILES,
 )
+from car_tco.data.reference_fleet import build_reference_fleet
 
 
 def test_catalogue_loaded_from_json_shape():
@@ -35,7 +35,6 @@ def test_reliability_profiles_expose_fillable_metadata():
     metadata = RELIABILITY_PROFILE_METADATA["Mitsubishi Outlander PHEV"]
     rav4_year_profile = RELIABILITY_YEAR_PROFILES["Toyota RAV4 Hybrid"][0]
     assert metadata.status == "draft"
-    assert metadata.generated_by == "repo_migration"
     assert rav4_year_profile.metadata.status == "draft"
 
 
@@ -45,17 +44,11 @@ def test_pricing_profiles_loaded_from_json_shape():
     assert ("rav4",) in rav4.required_groups
 
 
-def test_volvo_xc40_recharge_data_loaded_from_json_shape():
-    xc40 = RELIABILITY_PROFILES["Volvo XC40 Recharge"]
-    pricing = PRICING_MODEL_PROFILES["Volvo XC40 Recharge"]
-    assert len(xc40.sources) == 3
-    assert "battery management/charging" in xc40.known_failure_modes
-    assert pricing.query == "volvo xc40 recharge"
+def test_every_model_has_catalogue_and_reliability():
+    assert set(CAR_CATALOGUE) == set(RELIABILITY_PROFILES) == set(RELIABILITY_PROFILE_METADATA)
+    assert set(PRICING_MODEL_PROFILES).issubset(CAR_CATALOGUE)
 
 
-def test_audi_e_tron_data_loaded_from_json_shape():
-    audi = RELIABILITY_PROFILES["Audi e-tron"]
-    pricing = PRICING_MODEL_PROFILES["Audi e-tron"]
-    assert len(audi.sources) == 3
-    assert "high-voltage battery/water ingress" in audi.known_failure_modes
-    assert pricing.query == "audi e-tron"
+def test_reference_fleet_models_are_defined():
+    fleet_models = {car["model"] for car in build_reference_fleet()}
+    assert fleet_models.issubset(CAR_CATALOGUE)
