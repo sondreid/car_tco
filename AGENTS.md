@@ -26,9 +26,11 @@ The model combines:
 - `car_tco/data/models.py` loads that file and exposes `CAR_CATALOGUE`,
   `PRICING_MODEL_PROFILES`, `RELIABILITY_PROFILES` and
   `resolve_reliability_profile`.
-- `car_tco/data/reference_fleet.json` holds the default comparison instances
-  (price, year, km); `build_car()` copies and patches them.
-- Everything under `reports/` is generated output, never configuration.
+- The fleet to analyse comes from `<output_dir>/fleet.json` (default
+  `reports/fleet.json`) or `--fleet PATH`; it is personal experiment state
+  and never committed. `car_tco/data/example_fleet.json` is the tiny tracked
+  fallback and backs `build_car()` defaults.
+- Everything under `reports/` is personal or generated, never committed.
 
 ## Design Choices
 
@@ -51,8 +53,10 @@ Two layers:
 - Model definition: one entry in `car_tco/data/models.json`.
   Use the `skills/add-model` skill to have an agent research and populate it —
   optional but practical. Schema: `skills/add-model/references/models-json.md`.
-- Car instance: `build_car("Model Name", **overrides)`. Only add a row to
-  `reference_fleet.json` when the car belongs in the default comparison set.
+- Car instance: add candidates to the user's local fleet file with the
+  `skills/populate-fleet` skill, or `build_car("Model Name", **overrides)`
+  in Python. Only touch `example_fleet.json` when the repo's demo fleet
+  itself should change.
 
 ## Constraints
 

@@ -58,6 +58,16 @@ def _resolve_cache_path(
     return Path(output_dir) / filename
 
 
+def _resolve_fleet_path(
+    output_dir: Path,
+    explicit_path: str | Path | None,
+) -> Path | None:
+    if explicit_path is not None:
+        return Path(explicit_path)
+    local_path = output_dir / "fleet.json"
+    return local_path if local_path.exists() else None
+
+
 def _resolve_overrides_path(
     output_dir: Path,
     explicit_path: str | Path | None,
@@ -167,6 +177,7 @@ def run(
     reliability_cache_file: str | Path | None = None,
     results_cache_file: str | Path | None = None,
     overrides_file: str | Path | None = None,
+    fleet_file: str | Path | None = None,
     extra_cars: list[dict] | None = None,
     output_dir: str | Path = "reports",
     output_prefix: str = "tco",
@@ -219,7 +230,12 @@ def run(
         "results_cache.json",
     )
 
-    fleet = build_reference_fleet(price_overrides=price_overrides, extra_cars=extra_cars)
+    fleet_path = _resolve_fleet_path(output_dir_path, fleet_file)
+    fleet = build_reference_fleet(
+        price_overrides=price_overrides,
+        extra_cars=extra_cars,
+        fleet_path=fleet_path,
+    )
     ensure_overrides_file(overrides_example_path, fleet)
     fleet_overrides = load_overrides(overrides_path, fleet)
     overrides_active = has_active_overrides(fleet_overrides)

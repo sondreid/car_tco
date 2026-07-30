@@ -24,8 +24,10 @@ the meaning of each field.
    `generated_at` to the current date, review fields `null` unless the user
    provides review information.
 4. Add `year_profiles` only when the evidence is generation- or year-specific.
-5. If the model should appear in the default comparison, add one instance to
-   `car_tco/data/reference_fleet.json` (price, year, km, optional FINN URL).
+5. To compare a concrete car of this model, add an instance to the user's
+   local fleet file with the `populate-fleet` skill. Only touch the tiny
+   checked-in `car_tco/data/example_fleet.json` if the user explicitly wants
+   to change the repo's demo fleet.
 6. Run `python skills/add-model/scripts/validate_models.py`, then the test
    suite with `python tests/run_tests.py`.
 

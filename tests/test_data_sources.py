@@ -16,11 +16,11 @@ def test_catalogue_loaded_from_json_shape():
     assert rav4["consumption"]["petrol_l"] > 4
 
 
-def test_reference_fleet_loaded_from_json_shape():
+def test_example_fleet_loaded_from_json_shape():
     fleet = build_reference_fleet()
-    glc = next(car for car in fleet if car["model"] == "Mercedes GLC 300e 4MATIC")
-    assert glc["year"] == 2020
-    assert glc["url"].startswith("https://www.finn.no/")
+    outlander = next(car for car in fleet if car["model"] == "Mitsubishi Outlander PHEV")
+    assert outlander["year"] == 2020
+    assert outlander["km"] == 60000
 
 
 def test_reliability_profiles_loaded_from_json_shape():
@@ -49,6 +49,6 @@ def test_every_model_has_catalogue_and_reliability():
     assert set(PRICING_MODEL_PROFILES).issubset(CAR_CATALOGUE)
 
 
-def test_reference_fleet_models_are_defined():
+def test_example_fleet_models_are_defined():
     fleet_models = {car["model"] for car in build_reference_fleet()}
     assert fleet_models.issubset(CAR_CATALOGUE)

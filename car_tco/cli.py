@@ -127,6 +127,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to cached full-results JSON file.",
     )
     p.add_argument(
+        "--fleet",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Path to a fleet JSON file listing the cars to analyse "
+            "(default: OUTPUT_DIR/fleet.json if it exists, else the small "
+            "checked-in example fleet)."
+        ),
+    )
+    p.add_argument(
         "--overrides-file",
         default=None,
         metavar="PATH",
@@ -286,6 +296,7 @@ def main(argv: list[str] | None = None) -> None:
         reliability_cache_file=args.reliability_cache_file,
         results_cache_file=args.results_cache_file,
         overrides_file=args.overrides_file,
+        fleet_file=args.fleet,
         output_dir=Path(args.output_dir),
         output_prefix=args.output_prefix,
         write_output=not args.no_output and mode != RunMode.SCRAPE_PRICES,

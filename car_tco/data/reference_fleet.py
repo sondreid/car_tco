@@ -1,25 +1,27 @@
 """
-Reference fleet builder backed by checked-in JSON.
+Reference fleet builder.
 
-``build_reference_fleet`` returns a list of car dicts representing the cars
-that will be analysed.
+The fleet to analyse comes from a user-provided fleet JSON file, falling back
+to the small checked-in example fleet. ``build_reference_fleet`` returns a
+list of car dicts representing the cars that will be analysed.
 """
 
 from __future__ import annotations
 
 import copy
+import json
+from pathlib import Path
 
 from ._json import load_json_data
 
 
-def _load_default_fleet() -> list[dict]:
-    payload = load_json_data("reference_fleet.json")
+def _normalize_fleet(payload: object, source: str) -> list[dict]:
     if not isinstance(payload, list):
-        raise ValueError("reference_fleet.json must contain a list of car dicts")
+        raise ValueError(f"{source} must contain a list of car dicts")
     fleet: list[dict] = []
     for car in payload:
         if not isinstance(car, dict):
-            raise ValueError("reference_fleet.json entries must be objects")
+            raise ValueError(f"{source} entries must be objects")
         normalized = copy.deepcopy(car)
         if "model_year" not in normalized:
             normalized["model_year"] = int(normalized["year"])
@@ -27,8 +29,16 @@ def _load_default_fleet() -> list[dict]:
     return fleet
 
 
-_DEFAULT_FLEET: list[dict] = _load_default_fleet()
-_DEFAULT_BY_MODEL: dict[str, dict] = {car["model"]: car for car in _DEFAULT_FLEET}
+def load_fleet_file(path: str | Path) -> list[dict]:
+    """Load a fleet JSON file into a normalized list of car dicts."""
+    path = Path(path)
+    return _normalize_fleet(json.loads(path.read_text()), str(path))
+
+
+_EXAMPLE_FLEET: list[dict] = _normalize_fleet(
+    load_json_data("example_fleet.json"), "example_fleet.json"
+)
+_DEFAULT_BY_MODEL: dict[str, dict] = {car["model"]: car for car in _EXAMPLE_FLEET}
 
 
 def build_car(model: str, **overrides) -> dict:
@@ -36,8 +46,8 @@ def build_car(model: str, **overrides) -> dict:
     Build one car instance from a known model.
 
     Two modes are supported:
-    - model only: copy the repo's default reference instance for that model
-    - model + overrides: copy the default instance, then patch specific fields
+    - model only: copy the example instance for that model
+    - model + overrides: copy the example instance, then patch specific fields
     """
     if model in _DEFAULT_BY_MODEL:
         car = copy.deepcopy(_DEFAULT_BY_MODEL[model])
@@ -61,9 +71,13 @@ def build_car(model: str, **overrides) -> dict:
 def build_reference_fleet(
     price_overrides: dict[str, float] | None = None,
     extra_cars: list[dict] | None = None,
+    fleet_path: str | Path | None = None,
 ) -> list[dict]:
-    """Return the reference fleet as a list of car dicts."""
-    fleet = copy.deepcopy(_DEFAULT_FLEET)
+    """Return the fleet as a list of car dicts, from a file or the example fleet."""
+    if fleet_path is not None:
+        fleet = load_fleet_file(fleet_path)
+    else:
+        fleet = copy.deepcopy(_EXAMPLE_FLEET)
 
     if price_overrides:
         for car in fleet:

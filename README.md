@@ -16,11 +16,24 @@ pip install -e ".[dev]"
 
 ## Quick start
 
+The project is meant to be populated with *your* candidate cars before it is
+useful. The intended flow is to let a coding agent do that via the skills in
+`skills/` (practical, not mandatory — every file is plain JSON you can write
+by hand):
+
+1. `skills/add-model` — research and add a model definition to
+   `car_tco/data/models.json` (consumption, pricing profile, reliability
+   evidence).
+2. `skills/populate-fleet` — write your candidate listings to
+   `reports/fleet.json` (personal, gitignored; `--fleet` for custom paths).
+
+Then run:
+
 ```bash
 # Refresh FINN prices, rerun the model, write CSVs and caches to reports/
 car-tco
 
-# Reuse cached FINN prices and rerun reliability + TCO
+# Reuse cached FINN prices and rerun reliability + TCO (after a first run)
 car-tco --use-cached-scraped-price
 
 # Custom scenario
@@ -29,6 +42,10 @@ car-tco --petrol 25.0 --annual-km 20000 --years 4
 # Print only, no file output
 car-tco --no-output
 ```
+
+Without a fleet file, `car-tco` falls back to the small checked-in example
+fleet in `car_tco/data/example_fleet.json` — enough to see the output format,
+not a real comparison.
 
 ```python
 from car_tco.pipeline import RunMode, run
@@ -72,13 +89,16 @@ There are two layers, and two files:
    - `pricing_profile`: FINN search query and matching rules (optional)
    - `reliability`: source-backed scores, failure modes, evidence with metadata
 
-2. **Car instances — `car_tco/data/reference_fleet.json`**
-   The default comparison fleet: one concrete car per model with price, year
-   and km. Instances are built with `build_car("Model Name", **overrides)`;
-   omitted fields fall back to the reference instance.
+2. **Car instances — your fleet file**
+   The concrete cars being compared, one entry per candidate with price, year
+   and km. `car-tco` uses `<output_dir>/fleet.json` when it exists (default
+   `reports/fleet.json`), or an explicit `--fleet PATH`. This file is personal
+   experiment state and is never committed. The tracked
+   `car_tco/data/example_fleet.json` is only a tiny demo fallback, and backs
+   `build_car("Model Name", **overrides)` defaults.
 
-All other JSON files (`reports/*.json`) are generated caches and overrides —
-they are not configuration and are not checked in.
+Everything else under `reports/` is generated caches and overrides — not
+configuration, not checked in.
 
 ## Adding a car model
 
@@ -107,14 +127,15 @@ car_tco/
 ├── data/
 │   ├── models.json           ← Per-model definitions (catalogue, pricing, reliability)
 │   ├── models.py             ← Loader and dataclasses for models.json
-│   ├── reference_fleet.json  ← Default comparison fleet (instances)
-│   └── reference_fleet.py    ← Fleet helpers and build_car()
+│   ├── example_fleet.json    ← Tiny demo fleet (fallback when you have none)
+│   └── reference_fleet.py    ← Fleet loading and build_car()
 ├── scoring/reliability.py    ← Composite reliability score
 ├── cost/                     ← energy, maintenance, depreciation, tco assembly
 ├── pricing/finn.py           ← FINN scraping, matching, price cache
 └── reports/                  ← print/CSV output helpers
 skills/
-└── add-model/                ← Agent skill to research + populate a model entry
+├── add-model/                ← Agent skill: research + populate a model entry
+└── populate-fleet/           ← Agent skill: build your local fleet.json
 ```
 
 ## Key assumptions (`Assumptions`)
