@@ -41,7 +41,7 @@ The model combines:
   `failure_risk_cost_nok`.
 - An already-owned car is modeled with `existing_car = True`, `price_nok = 0`,
   `current_resale_value_nok` (keep-versus-sell opportunity cost) and
-  `known_repairs_nok`; see the Toyota Avensis example in the fleet.
+  `known_repairs_nok`; see the existing-car example in README.md.
 - FINN scraping is opt-in and should not be assumed stable. It produces a
   typical comparable-market price (median of nearest matches), not a mean,
   and falls back to the manual reference price when matches are thin.

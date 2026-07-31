@@ -71,6 +71,8 @@ df = run(
             "Toyota Avensis",
             existing_car=True,
             price_nok=0,
+            year=2012,
+            km=182_000,
             current_resale_value_nok=20_000,
             known_repairs_nok=50_000,
             exclude_from_price_estimation=True,

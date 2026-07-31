@@ -28,19 +28,5 @@
     "price_nok": 220000,
     "url": "",
     "year": 2020
-  },
-  {
-    "current_resale_value_nok": 50000,
-    "description": "example already-owned car evaluated as keep-versus-sell",
-    "exclude_from_price_estimation": true,
-    "existing_car": true,
-    "km": 180000,
-    "known_repairs_nok": 20000,
-    "model": "Toyota Avensis",
-    "model_year": 2012,
-    "name": "Toyota Avensis existing-car example",
-    "price_nok": 0,
-    "url": "",
-    "year": 2012
   }
 ]
